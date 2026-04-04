@@ -7,6 +7,7 @@
 <title>Dad Brain</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 :root {
@@ -89,6 +90,8 @@ header { position:sticky; top:0; z-index:100; background:rgba(245,240,232,0.97);
 .btn-edit-hub { display:inline-flex; align-items:center; gap:6px; background:none; border:1px solid var(–border); border-radius:9px; padding:7px 14px; font-size:12px; color:var(–muted); font-weight:500; cursor:pointer; font-family:‘DM Sans’,sans-serif; transition:all 0.15s; }
 .btn-edit-hub:hover { background:var(–card-bg); color:var(–brown); border-color:var(–brown); }
 .shelf-tile.edit-mode { border:1.5px dashed var(–amber); animation:wiggle 0.5s infinite alternate; }
+.shelf-tile.sortable-chosen { box-shadow:0 12px 40px rgba(28,26,22,0.2) !important; transform:scale(1.04) !important; opacity:0.95; z-index:999; animation:none !important; }
+.shelf-tile.sortable-ghost { opacity:0.3; border:2px dashed var(–amber); background:var(–cream); }
 @keyframes wiggle { from{transform:rotate(-0.5deg)} to{transform:rotate(0.5deg)} }
 .tile-edit-btn { position:absolute; top:6px; right:6px; background:var(–amber); color:white; border:none; border-radius:6px; width:22px; height:22px; font-size:11px; cursor:pointer; display:flex; align-items:center; justify-content:center; }
 
@@ -288,12 +291,12 @@ header { padding:0 16px; height:56px; }
       </button>
       <div class="dropdown" id="dropdown">
         <button class="drop-item" onclick="closeMenu();switchView('alerts',null)">
-          🔔 Alerts <span class="drop-badge" id="drop-badge-alerts">0</span>
+          Alerts <span class="drop-badge" id="drop-badge-alerts">0</span>
         </button>
         <div class="drop-divider"></div>
-        <button class="drop-item" onclick="closeMenu();toggleEditMode()">✏️ Edit Hub</button>
-        <button class="drop-item" onclick="closeMenu();switchView('settings',null)">⚙️ Settings</button>
-        <button class="drop-item danger" onclick="closeMenu();logOut()">🚪 Log Out</button>
+        <button class="drop-item" onclick="closeMenu();toggleEditMode()">Edit Hub</button>
+        <button class="drop-item" onclick="closeMenu();switchView('settings',null)">Settings</button>
+        <button class="drop-item danger" onclick="closeMenu();logOut()">Log Out</button>
       </div>
     </div>
   </div>
@@ -556,6 +559,7 @@ header { padding:0 16px; height:56px; }
       <div class="form-field" style="margin:0">
         <label>Name</label>
         <input type="text" id="tileNameInput" placeholder="Folder name">
+        <div id="tileNameLock" style="display:none;font-size:11px;color:var(--muted);margin-top:5px;">🔒 Core folder — name is permanent</div>
       </div>
     </div>
     <div class="form-field" style="margin-top:12px">
@@ -581,16 +585,17 @@ const sb = createClient(
 
 const SECTIONS = ['family','gifts','hobbies','reads','remember','business','movies','tv','restaurants'];
 const ACCENTS = {family:'#D4860A',gifts:'#C45C26',hobbies:'#6B7F5E',reads:'#7A8FA6',remember:'#9B72CF',business:'#1C1A16',movies:'#8B3A8B',tv:'#2A7A9B',restaurants:'#B55A1A'};
+// Core locked tiles — names are permanent, only emoji can be customized
+const LOCKED_TILE_IDS = ['family','gifts','hobbies','reads','goals','movies','tv','restaurants'];
 const DEFAULT_TILES = [
-  {id:'family',emoji:'👨‍👩‍👧',name:'Family',sub:'notes'},
-  {id:'gifts',emoji:'🎁',name:'Gift Ideas',sub:'ideas'},
-  {id:'hobbies',emoji:'🎯',name:'Hobbies',sub:'items'},
-  {id:'reads',emoji:'📚',name:'Reads',sub:'saved'},
-  {id:'remember',emoji:'💡',name:'Remember',sub:'things'},
-  {id:'business',emoji:'⚡',name:'Side Hustle',sub:'notes'},
-  {id:'movies',emoji:'🎬',name:'Movies',sub:'to watch'},
-  {id:'tv',emoji:'📺',name:'TV Shows',sub:'series'},
-  {id:'restaurants',emoji:'🍽️',name:'Restaurants',sub:'spots'},
+  {id:'family',  emoji:'👨‍👩‍👧', name:'Family',         sub:'notes',    locked:true},
+  {id:'gifts',   emoji:'🎁',      name:'Gift Ideas',     sub:'ideas',    locked:true},
+  {id:'hobbies', emoji:'🎯',      name:'Hobbies',        sub:'items',    locked:true},
+  {id:'reads',   emoji:'📚',      name:'Things to Read', sub:'saved',    locked:true},
+  {id:'goals',   emoji:'🏆',      name:'Goals',          sub:'goals',    locked:true},
+  {id:'movies',  emoji:'🎬',      name:'Movies',         sub:'to watch', locked:true},
+  {id:'tv',      emoji:'📺',      name:'TV Shows',       sub:'series',   locked:true},
+  {id:'restaurants',emoji:'🍽️',  name:'Restaurants',    sub:'spots',    locked:true},
 ];
 const THEMES = {
   warm:  {'--cream':'#F5F0E8','--warm-white':'#FDFAF4','--ink':'#1C1A16','--brown':'#5C3D2E','--card-bg':'#FFFEF9','--border':'rgba(92,61,46,0.12)','--muted':'#9E9589'},
@@ -610,7 +615,20 @@ let currentUser = null;
 let dataCache = {};
 
 // ── LOCAL HELPERS (tiles + settings stay local) ──
-function loadTiles(){try{return JSON.parse(localStorage.getItem('dadsTiles')||'null')||DEFAULT_TILES.map(t=>({...t}))}catch{return DEFAULT_TILES.map(t=>({...t}))}}
+function loadTiles(){
+  try {
+    const saved = JSON.parse(localStorage.getItem('dadsTiles')||'null');
+    if(!saved) return DEFAULT_TILES.map(t=>({...t}));
+    // Merge: ensure all locked tiles exist with correct names
+    const merged = DEFAULT_TILES.map(def => {
+      const existing = saved.find(s=>s.id===def.id);
+      return existing ? {...existing, name:def.name, locked:true} : {...def};
+    });
+    // Append any custom tiles the user added
+    const customTiles = saved.filter(s=>!s.locked);
+    return [...merged, ...customTiles];
+  } catch { return DEFAULT_TILES.map(t=>({...t})); }
+}
 function saveTiles(t){localStorage.setItem('dadsTiles',JSON.stringify(t))}
 function loadSettings(){try{return JSON.parse(localStorage.getItem('dadsBrainSettings')||'{}')}catch{return{}}}
 function persistSettings(s){localStorage.setItem('dadsBrainSettings',JSON.stringify(s))}
@@ -878,7 +896,7 @@ function renderShelf() {
     if(banner) banner.remove();
   }
   let html = tiles.map(t=>`
-    <div class="shelf-tile${editMode?' edit-mode':''}" ${!editMode?`onclick="switchView('${t.id}',null)"`:''} style="position:relative">
+    <div class="shelf-tile${editMode?' edit-mode':''}" data-id="${t.id}" ${!editMode?`onclick="switchView('${t.id}',null)"`:''} style="position:relative">
       ${editMode?`
         <button class="tile-edit-btn" onclick="openTileEditor('${t.id}')" style="right:28px">✏️</button>
         <button class="tile-edit-btn" onclick="deleteTile('${t.id}')" style="background:var(--rust);right:4px">✕</button>
@@ -887,11 +905,35 @@ function renderShelf() {
       <div class="tile-name">${t.name}</div>
       <div class="tile-count">${getCached(t.id).length} ${t.sub}</div>
     </div>`).join('');
-  if(editMode) html+=`<div class="shelf-tile" onclick="addNewTile()" style="border:2px dashed var(--border);opacity:0.7;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px">
+  if(editMode) html+=`<div class="shelf-tile add-tile-btn" onclick="addNewTile()" style="border:2px dashed var(--border);opacity:0.7;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px">
     <span style="font-size:28px">＋</span>
     <div class="tile-name">Add Folder</div>
   </div>`;
-  document.getElementById('quickShelf').innerHTML = html;
+  const shelf = document.getElementById('quickShelf');
+  shelf.innerHTML = html;
+
+  // Destroy old sortable
+  if(window._shelfSortable){ window._shelfSortable.destroy(); window._shelfSortable = null; }
+
+  // Init drag-to-reorder in edit mode
+  if(editMode && typeof Sortable !== 'undefined'){
+    window._shelfSortable = Sortable.create(shelf, {
+      animation: 150,
+      delay: 200,
+      delayOnTouchOnly: true,
+      ghostClass: 'sortable-ghost',
+      chosenClass: 'sortable-chosen',
+      filter: '.add-tile-btn',
+      onEnd: function(){
+        const newOrder = [...shelf.querySelectorAll('[data-id]')].map(el=>el.dataset.id);
+        const tiles = loadTiles();
+        const reordered = newOrder.map(id=>tiles.find(t=>t.id===id)).filter(Boolean);
+        saveTiles(reordered);
+        showToast('Order saved ✓');
+      }
+    });
+  }
+
   tiles.forEach(t=>{
     const ne = document.getElementById('ne-'+t.id);
     const nn = document.getElementById('nn-'+t.id);
@@ -940,15 +982,15 @@ function ensureTileView(id) {
 }
 
 function deleteTile(id) {
+  const tile = loadTiles().find(t=>t.id===id);
+  if(tile && tile.locked){ showToast('Core folders cannot be deleted'); return; }
   if(!confirm('Delete this folder and all its entries?')) return;
   const tiles = loadTiles().filter(t=>t.id!==id);
   saveTiles(tiles);
-  // Also delete from Supabase
   sb.from('entries').delete().eq('section', id).eq('user_id', currentUser.id);
   delete dataCache[id];
   editMode = false;
   renderShelf();
-  document.getElementById('editHubBtn').textContent = '✏️ Edit Hub';
   showToast('Folder deleted');
 }
 
@@ -957,9 +999,16 @@ function openTileEditor(id){
   const tiles = loadTiles();
   const tile = tiles.find(t=>t.id===id);
   const pos = tiles.findIndex(t=>t.id===id) + 1;
+  const isLocked = tile.locked === true;
   document.getElementById('tileEmojiInput').value = tile.emoji;
   document.getElementById('tileNameInput').value = tile.name;
+  document.getElementById('tileNameInput').disabled = isLocked;
+  document.getElementById('tileNameInput').style.opacity = isLocked ? '0.45' : '1';
+  document.getElementById('tileNameInput').title = isLocked ? 'This folder name is permanent' : '';
   document.getElementById('tilePosInput').value = pos;
+  // Show lock indicator
+  const lockNote = document.getElementById('tileNameLock');
+  if(lockNote) lockNote.style.display = isLocked ? 'block' : 'none';
   document.getElementById('tileModal').classList.add('open');
 }
 function closeTileModal(){ document.getElementById('tileModal').classList.remove('open'); editingTileId=null; }
@@ -968,7 +1017,9 @@ function saveTile(){
   const currentIdx = tiles.findIndex(t=>t.id===editingTileId);
   const tile = tiles[currentIdx];
   tile.emoji = document.getElementById('tileEmojiInput').value.trim()||tile.emoji;
-  tile.name = document.getElementById('tileNameInput').value.trim()||tile.name;
+  if(!tile.locked){
+    tile.name = document.getElementById('tileNameInput').value.trim()||tile.name;
+  }
   const posInput = parseInt(document.getElementById('tilePosInput').value);
   if(!isNaN(posInput) && posInput >= 1) {
     const newIdx = Math.min(posInput - 1, tiles.length - 1);
@@ -996,7 +1047,6 @@ function scheduleAlert(item) {
 // ── SETTINGS ──
 function populateSettings(){
   const s = loadSettings();
-  document.getElementById('s-appName').value = s.appName||'Dad Brain';
   document.getElementById('s-userName').value = s.userName||'';
   document.getElementById('s-tagline').value = s.tagline||'';
   const accent = s.accentColor||'#D4860A';
@@ -1016,7 +1066,7 @@ function populateSettings(){
 
 function saveSettings(){
   const s = loadSettings();
-  s.appName = document.getElementById('s-appName').value.trim()||'Dad Brain';
+  s.appName = 'Dad Brain'; // Brand locked — cannot be changed by users
   s.userName = document.getElementById('s-userName').value.trim();
   s.tagline = document.getElementById('s-tagline').value.trim();
   s.accentColor = document.getElementById('s-accentColor').value;
