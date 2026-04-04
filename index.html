@@ -32,16 +32,7 @@ header { position:sticky; top:0; z-index:100; background:rgba(245,240,232,0.97);
 /* CARDS */
 .cards-grid { display:grid; grid-template-columns:1fr; gap:14px; }
 /* SIDEBAR */
-.sidebar { width:220px; flex-shrink:0; display:flex; flex-direction:column; gap:0; }
-.sidebar-section { margin-bottom:24px; }
-.sidebar-section.bottom { margin-top:auto; margin-bottom:0; padding-top:12px; border-top:1px solid var(–border); }
-.sidebar-label { font-size:10px; font-weight:500; letter-spacing:1.2px; text-transform:uppercase; color:var(–muted); padding:0 12px; margin-bottom:6px; }
-.nav-item { display:flex; align-items:center; gap:10px; padding:9px 12px; border-radius:10px; cursor:pointer; font-size:14px; font-weight:400; color:var(–ink); transition:all 0.15s; border:none; background:none; width:100%; text-align:left; font-family:‘DM Sans’,sans-serif; }
-.nav-item:hover { background:rgba(92,61,46,0.06); }
-.nav-item.active { background:var(–brown); color:var(–cream); font-weight:500; }
-.nav-emoji { font-size:16px; width:22px; text-align:center; }
-.nav-badge { margin-left:auto; background:var(–amber); color:white; font-size:10px; font-weight:600; padding:1px 6px; border-radius:20px; min-width:18px; text-align:center; }
-.nav-item.active .nav-badge { background:var(–amber-light); color:var(–brown); }
+.sidebar { display:none !important; }
 
 /* MAIN */
 .main { flex:1; min-width:0; }
