@@ -27,10 +27,11 @@ header { position:sticky; top:0; z-index:100; background:rgba(245,240,232,0.97);
 .header-date { font-size:13px; color:#5C4A3A; font-weight:400; }
 
 /* LAYOUT */
-.layout { display:flex; max-width:1100px; margin:0 auto; padding:20px 16px; gap:24px; position:relative; z-index:1; }
+.layout { display:flex; max-width:860px; margin:0 auto; padding:28px 24px; position:relative; z-index:1; }
 
 /* CARDS */
-.cards-grid { display:grid; grid-template-columns:1fr; gap:14px; }
+.cards-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:16px; }
+@media (max-width:600px) { .cards-grid { grid-template-columns:1fr; } }
 /* SIDEBAR */
 .sidebar { display:none !important; }
 
@@ -78,7 +79,8 @@ header { position:sticky; top:0; z-index:100; background:rgba(245,240,232,0.97);
 .home-sub { font-size:14px; color:var(–muted); margin-bottom:28px; font-weight:300; }
 .hub-toolbar { display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; }
 .section-title { font-family:‘Playfair Display’,serif; font-size:18px; font-weight:600; color:var(–brown); margin-bottom:14px; }
-.quick-shelf { display:grid; grid-template-columns:repeat(2,1fr) !important; gap:12px; margin-bottom:32px; }
+.quick-shelf { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-bottom:32px; }
+@media (max-width:600px) { .quick-shelf { grid-template-columns:repeat(2,1fr); } }
 .shelf-tile { background:#FFFEF9; border:1px solid rgba(92,61,46,0.12); border-radius:16px; padding:20px 14px 16px; cursor:pointer; transition:all 0.2s; text-align:center; position:relative; box-shadow:0 2px 12px rgba(28,26,22,0.07); }
 .shelf-tile:hover, .shelf-tile:active { transform:translateY(-2px); box-shadow:var(–shadow-hover); }
 .tile-emoji { font-size:34px; display:block; margin-bottom:10px; line-height:1.2; }
@@ -101,9 +103,9 @@ header { position:sticky; top:0; z-index:100; background:rgba(245,240,232,0.97);
 .link-actions { display:flex; flex-direction:column; gap:6px; align-items:flex-end; flex-shrink:0; }
 
 /* MODAL */
-.modal-overlay { display:none; position:fixed; inset:0; background:rgba(28,26,22,0.5); backdrop-filter:blur(4px); z-index:200; align-items:center; justify-content:center; padding:20px; }
+.modal-overlay { display:none; position:fixed; inset:0; background:rgba(28,26,22,0.6); backdrop-filter:blur(6px); z-index:200; align-items:center; justify-content:center; padding:20px; }
 .modal-overlay.open { display:flex; }
-.modal { background:var(–warm-white); border-radius:18px; padding:28px; width:100%; max-width:480px; box-shadow:0 24px 80px rgba(28,26,22,0.2); animation:slideUp 0.25s ease; max-height:90vh; overflow-y:auto; }
+.modal { background:#FFFEF9; border-radius:20px; padding:28px; width:100%; max-width:480px; box-shadow:0 24px 80px rgba(28,26,22,0.25); animation:slideUp 0.25s ease; max-height:90vh; overflow-y:auto; border:1px solid rgba(92,61,46,0.1); }
 @keyframes slideUp { from{transform:translateY(20px);opacity:0} to{transform:translateY(0);opacity:1} }
 .modal-title { font-family:‘Playfair Display’,serif; font-size:22px; font-weight:700; color:var(–brown); margin-bottom:20px; }
 .form-field { margin-bottom:16px; }
@@ -451,11 +453,7 @@ header { padding:0 16px; height:56px; }
     <div><div class="page-title">⚙️ Settings</div><div class="page-subtitle">Make Dad Brain feel like yours</div></div>
   </div>
   <div class="settings-section">
-    <div class="settings-section-title">🏷️ Brand & Identity</div>
-    <div class="settings-row">
-      <div class="settings-label"><div class="settings-label-name">App Name</div><div class="settings-label-desc">Shown in the header</div></div>
-      <input class="settings-input" type="text" id="s-appName" placeholder="Dad Brain">
-    </div>
+    <div class="settings-section-title">🏷️ Your Identity</div>
     <div class="settings-row">
       <div class="settings-label"><div class="settings-label-name">Your Name</div><div class="settings-label-desc">Used in greetings</div></div>
       <input class="settings-input" type="text" id="s-userName" placeholder="Dad">
@@ -512,32 +510,31 @@ header { padding:0 16px; height:56px; }
       <label>Title</label>
       <input type="text" id="inputTitle" placeholder="What's this about?">
     </div>
-    <div class="form-field" id="linkField" style="display:none">
-      <label>Link / URL</label>
-      <input type="url" id="inputLink" placeholder="https://...">
-    </div>
     <div class="form-field">
       <label>Notes</label>
       <textarea id="inputBody" placeholder="Details, context, why it matters..."></textarea>
     </div>
     <div class="form-field">
-      <label>Soft Reminder</label>
-      <input type="text" id="inputReminder" placeholder="e.g. Check in this weekend">
+      <label>🔗 Link / URL</label>
+      <input type="url" id="inputLink" placeholder="https://...">
     </div>
     <div class="form-field">
-      <div class="alert-row">
+      <label>🔔 Reminder Note</label>
+      <input type="text" id="inputReminder" placeholder="e.g. Follow up this weekend">
+    </div>
+    <div class="form-field">
+      <label style="margin-bottom:10px;display:block">⏰ Schedule Alert</label>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:8px">
         <div>
-          <div style="font-size:13px;font-weight:500;color:var(--ink)">Set an Alert</div>
-          <div style="font-size:12px;color:var(--muted);margin-top:2px">Browser notification at a set time</div>
+          <div style="font-size:11px;color:var(--muted);margin-bottom:5px;font-weight:500;">DATE</div>
+          <input type="date" id="inputAlertDate" style="width:100%;padding:11px 12px;background:var(--cream);border:1px solid var(--border);border-radius:10px;font-size:14px;font-family:'DM Sans',sans-serif;color:var(--ink);outline:none;">
         </div>
-        <label class="toggle-switch">
-          <input type="checkbox" id="alertToggle" onchange="document.getElementById('alertFields').style.display=this.checked?'block':'none'">
-          <span class="toggle-slider"></span>
-        </label>
+        <div>
+          <div style="font-size:11px;color:var(--muted);margin-bottom:5px;font-weight:500;">TIME</div>
+          <input type="time" id="inputAlertTime" style="width:100%;padding:11px 12px;background:var(--cream);border:1px solid var(--border);border-radius:10px;font-size:14px;font-family:'DM Sans',sans-serif;color:var(--ink);outline:none;">
+        </div>
       </div>
-      <div id="alertFields" style="display:none;margin-top:10px">
-        <input type="datetime-local" id="inputAlertTime" style="width:100%;padding:11px 14px;background:var(--cream);border:1px solid var(--border);border-radius:10px;font-size:14px;font-family:'DM Sans',sans-serif;color:var(--ink);outline:none;">
-      </div>
+      <div style="font-size:11px;color:var(--muted);">Leave blank for no alert</div>
     </div>
     <div class="modal-actions">
       <button class="btn-cancel" onclick="closeModal()">Cancel</button>
@@ -560,6 +557,10 @@ header { padding:0 16px; height:56px; }
         <label>Name</label>
         <input type="text" id="tileNameInput" placeholder="Folder name">
       </div>
+    </div>
+    <div class="form-field" style="margin-top:12px">
+      <label>Position (1 = first)</label>
+      <input type="number" id="tilePosInput" min="1" placeholder="e.g. 1" style="width:100%;padding:10px 14px;background:var(--cream);border:1px solid var(--border);border-radius:10px;font-size:14px;font-family:'DM Sans',sans-serif;color:var(--ink);outline:none;">
     </div>
     <div class="modal-actions">
       <button class="btn-cancel" onclick="closeTileModal()">Cancel</button>
@@ -662,9 +663,6 @@ function switchView(view, btn) {
 function openModal(section, itemId) {
   modalSection = section;
   editingItemId = itemId || null;
-  document.getElementById('linkField').style.display = section==='reads'?'block':'none';
-  document.getElementById('alertToggle').checked = false;
-  document.getElementById('alertFields').style.display = 'none';
   if(itemId) {
     const item = getCached(section).find(i=>i.id===itemId);
     if(!item) return;
@@ -675,15 +673,18 @@ function openModal(section, itemId) {
     document.getElementById('inputLink').value = item.link||'';
     document.getElementById('inputReminder').value = item.reminder||'';
     if(item.alert_time){
-      document.getElementById('alertToggle').checked=true;
-      document.getElementById('alertFields').style.display='block';
-      document.getElementById('inputAlertTime').value=item.alert_time;
+      const dt = new Date(item.alert_time);
+      document.getElementById('inputAlertDate').value = dt.toISOString().split('T')[0];
+      document.getElementById('inputAlertTime').value = dt.toTimeString().slice(0,5);
+    } else {
+      document.getElementById('inputAlertDate').value = '';
+      document.getElementById('inputAlertTime').value = '';
     }
   } else {
     const titles={family:'Add Family Note',gifts:'Add Gift Idea',hobbies:'Add Hobby',reads:'Save a Link',remember:'Remember This',business:'Add Hustle Note'};
     document.getElementById('modalTitle').textContent = titles[section]||'Add Note';
     document.getElementById('modalSaveBtn').textContent = 'Save It';
-    ['inputTitle','inputBody','inputLink','inputReminder','inputAlertTime'].forEach(id=>document.getElementById(id).value='');
+    ['inputTitle','inputBody','inputLink','inputReminder','inputAlertDate','inputAlertTime'].forEach(id=>document.getElementById(id).value='');
   }
   document.getElementById('modal').classList.add('open');
   setTimeout(()=>document.getElementById('inputTitle').focus(), 100);
@@ -695,7 +696,9 @@ async function saveItem() {
   const title = document.getElementById('inputTitle').value.trim();
   if(!title){ document.getElementById('inputTitle').style.borderColor='var(--rust)'; return; }
   document.getElementById('inputTitle').style.borderColor='';
-  const alertTime = document.getElementById('alertToggle').checked ? document.getElementById('inputAlertTime').value : null;
+  const alertDate = document.getElementById('inputAlertDate').value;
+  const alertTimeVal = document.getElementById('inputAlertTime').value;
+  const alertTime = (alertDate && alertTimeVal) ? `${alertDate}T${alertTimeVal}` : null;
   const btn = document.getElementById('modalSaveBtn');
   btn.innerHTML = '<span class="spinner"></span>Saving…';
   btn.disabled = true;
@@ -951,18 +954,28 @@ function deleteTile(id) {
 
 function openTileEditor(id){
   editingTileId = id;
-  const tile = loadTiles().find(t=>t.id===id);
+  const tiles = loadTiles();
+  const tile = tiles.find(t=>t.id===id);
+  const pos = tiles.findIndex(t=>t.id===id) + 1;
   document.getElementById('tileEmojiInput').value = tile.emoji;
   document.getElementById('tileNameInput').value = tile.name;
+  document.getElementById('tilePosInput').value = pos;
   document.getElementById('tileModal').classList.add('open');
 }
 function closeTileModal(){ document.getElementById('tileModal').classList.remove('open'); editingTileId=null; }
 function saveTile(){
   const tiles = loadTiles();
-  const tile = tiles.find(t=>t.id===editingTileId);
+  const currentIdx = tiles.findIndex(t=>t.id===editingTileId);
+  const tile = tiles[currentIdx];
   tile.emoji = document.getElementById('tileEmojiInput').value.trim()||tile.emoji;
   tile.name = document.getElementById('tileNameInput').value.trim()||tile.name;
-  saveTiles(tiles); closeTileModal(); renderShelf();
+  const posInput = parseInt(document.getElementById('tilePosInput').value);
+  if(!isNaN(posInput) && posInput >= 1) {
+    const newIdx = Math.min(posInput - 1, tiles.length - 1);
+    tiles.splice(currentIdx, 1);
+    tiles.splice(newIdx, 0, tile);
+  }
+  saveTiles(tiles); closeTileModal(); renderShelf(); showToast('Folder updated ✓');
 }
 
 // ── ALERTS ──
