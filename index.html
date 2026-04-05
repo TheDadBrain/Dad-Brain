@@ -1425,15 +1425,17 @@ const pass=document.getElementById(‘loginPassword’).value;
 const err=document.getElementById(‘loginErr’), btn=document.getElementById(‘loginBtn’);
 if(!email||!pass){err.textContent=‘Please enter your email and password.’;err.style.display=‘block’;return;}
 btn.innerHTML=’<span class="spinner"></span>Signing in…’; btn.disabled=true;
+err.style.display=‘none’;
 try {
-const {data,error}=await sb.auth.signInWithPassword({email,password:pass});
+const timeout = new Promise((_,reject)=>setTimeout(()=>reject(new Error(‘Connection timed out’)),10000));
+const authCall = sb.auth.signInWithPassword({email,password:pass});
+const {data,error} = await Promise.race([authCall, timeout]);
 btn.innerHTML=‘Sign In’; btn.disabled=false;
 if(error){err.textContent=error.message;err.style.display=‘block’;return;}
-err.style.display=‘none’;
 await onLogin(data.user);
 } catch(e){
 btn.innerHTML=‘Sign In’; btn.disabled=false;
-err.textContent=‘Connection error — please try again.’;
+err.textContent=e.message||‘Connection error — check your internet and try again.’;
 err.style.display=‘block’;
 console.error(‘doLogin error:’,e);
 }
