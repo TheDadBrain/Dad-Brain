@@ -210,7 +210,19 @@ header { position:sticky; top:0; z-index:100; background:rgba(245,240,232,0.97);
 ::-webkit-scrollbar-track { background:transparent; }
 ::-webkit-scrollbar-thumb { background:var(–border); border-radius:3px; }
 
-/* QUICK CAPTURE BUTTON */
+/* SHARE CARD */
+.share-card-preview { background:linear-gradient(135deg,#5C3D2E,#3d2519); border-radius:20px; padding:28px; color:#FFFEF9; margin:16px 0; position:relative; overflow:hidden; }
+.share-card-preview::before { content:‘🧠’; position:absolute; right:-10px; bottom:-10px; font-size:80px; opacity:0.08; }
+.share-card-tag { font-size:10px; font-weight:700; letter-spacing:1.2px; text-transform:uppercase; color:rgba(255,255,255,0.5); margin-bottom:8px; }
+.share-card-title { font-family:‘Playfair Display’,serif; font-size:20px; font-weight:700; margin-bottom:8px; line-height:1.3; }
+.share-card-body { font-size:13px; opacity:0.8; line-height:1.6; margin-bottom:16px; }
+.share-card-footer { display:flex; align-items:center; justify-content:space-between; border-top:1px solid rgba(255,255,255,0.15); padding-top:12px; font-size:11px; opacity:0.6; }
+.share-actions { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:4px; }
+.share-btn { padding:12px; border-radius:12px; border:none; font-size:13px; font-weight:600; cursor:pointer; font-family:‘DM Sans’,sans-serif; transition:all 0.15s; display:flex; align-items:center; justify-content:center; gap:6px; }
+.share-btn-primary { background:#5C3D2E; color:#FFFEF9; }
+.share-btn-primary:hover { background:#C45C26; }
+.share-btn-secondary { background:var(–cream); color:#5C3D2E; border:1.5px solid rgba(92,61,46,0.2); }
+.share-btn-secondary:hover { background:#5C3D2E; color:#FFFEF9; }
 .quick-capture-btn { position:fixed; bottom:28px; right:24px; width:58px; height:58px; background:#5C3D2E; border:none; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:26px; cursor:pointer; box-shadow:0 6px 24px rgba(92,61,46,0.35); z-index:150; transition:all 0.2s; }
 .quick-capture-btn:hover { background:#C45C26; transform:scale(1.08); }
 .quick-capture-btn:active { transform:scale(0.95); }
@@ -548,7 +560,17 @@ header { padding:0 16px; height:56px; }
     <div id="folderSettingsList"></div>
   </div>
   <div class="settings-section">
-    <div class="settings-section-title" style="color:var(--rust)">⚠️ Data</div>
+    <div class="settings-section-title">📤 Share & Export</div>
+    <div class="settings-row">
+      <div class="settings-label"><div class="settings-label-name">Export to PDF</div><div class="settings-label-desc">Download all your notes as a PDF</div></div>
+      <button class="btn-save" onclick="exportToPDF()" style="padding:9px 18px;font-size:13px;">Download PDF</button>
+    </div>
+    <div class="settings-row">
+      <div class="settings-label"><div class="settings-label-name">Copy All Notes</div><div class="settings-label-desc">Copy everything to clipboard</div></div>
+      <button class="btn-save" onclick="copyAllNotes()" style="padding:9px 18px;font-size:13px;background:var(--sage);">Copy All</button>
+    </div>
+  </div>
+  <div class="settings-section">
     <div class="settings-row">
       <div class="settings-label"><div class="settings-label-name">Clear All Data</div><div class="settings-label-desc">Permanently wipe all your notes</div></div>
       <button class="btn-danger" onclick="clearAllData()">Clear Everything</button>
@@ -630,6 +652,30 @@ header { padding:0 16px; height:56px; }
     <div class="modal-actions">
       <button class="btn-cancel" onclick="closeTileModal()">Cancel</button>
       <button class="btn-save" onclick="saveTile()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- SHARE MODAL -->
+
+<div class="modal-overlay" id="shareModal">
+  <div class="modal">
+    <div class="modal-title">Share this Note</div>
+    <div class="share-card-preview" id="shareCardPreview">
+      <div class="share-card-tag" id="shareCardTag"></div>
+      <div class="share-card-title" id="shareCardTitle"></div>
+      <div class="share-card-body" id="shareCardBody"></div>
+      <div class="share-card-footer">
+        <span>Dad Brain</span>
+        <span id="shareCardDate"></span>
+      </div>
+    </div>
+    <div class="share-actions">
+      <button class="share-btn share-btn-primary" onclick="shareAsText()">📋 Copy Text</button>
+      <button class="share-btn share-btn-secondary" onclick="shareNative()">📤 Share</button>
+    </div>
+    <div style="text-align:center;margin-top:14px">
+      <button class="btn-cancel" onclick="closeShareModal()">Close</button>
     </div>
   </div>
 </div>
@@ -845,6 +891,7 @@ async function renderSection(section,forceRefetch){
         ${item.reminder?`<span style="font-size:11px;color:var(--sage)">🔔 ${item.reminder}</span>`:''}
         ${item.alert_time?`<span style="font-size:11px;color:var(--sage)">⏰</span>`:''}
         <div class="card-actions">
+          <button class="card-btn" onclick="openShareModal('${section}',${item.id})">Share</button>
           <button class="card-btn" onclick="openModal('${section}',${item.id})">Edit</button>
           <button class="card-btn del" onclick="deleteItem('${section}',${item.id})">Delete</button>
         </div>
@@ -1239,9 +1286,8 @@ function checkSmartReminders(){
     if(!item.alert_time) return;
     const alertDt = new Date(item.alert_time);
     const hoursUntil = (alertDt - now) / 3600000;
-    if(hoursUntil > 0 && hoursUntil <= 48){
+    if(hoursUntil > 0 && hoursUntil <= 48)
       reminders.push({icon:'⏰', title:`Upcoming: ${item.title}`, body:`Alert in ${hoursUntil<1?'less than an hour':Math.round(hoursUntil)+' hours'}`, action:'View Alerts', fn:`switchView('alerts',null)`});
-    }
   }));
 
   // Gift idea older than 30 days
@@ -1252,22 +1298,14 @@ function checkSmartReminders(){
     if(daysSince >= 30) reminders.push({icon:'🎁', title:'Gift idea check-in', body:`You saved "${oldest.title}" ${daysSince} days ago. Still relevant?`, action:'Review', fn:`switchView('gifts',null)`});
   }
 
-  // No notes this week nudge
+  // No notes this week — only if they have existing data
   const oneWeekAgo = Date.now() - 7*24*60*60*1000;
   let weekCount = 0;
   SECTIONS.forEach(s => getCached(s).forEach(i=>{ if(new Date(i.created_at).getTime()>=oneWeekAgo) weekCount++; }));
-  if(weekCount === 0) reminders.push({icon:'🧠', title:"What's on your mind?", body:'Tap to do a quick brain dump — takes 10 seconds.', action:'Quick Capture', fn:`openQuickCapture()`});
+  if(weekCount === 0 && Object.values(dataCache).some(arr=>arr.length>0))
+    reminders.push({icon:'🧠', title:"Your brain's been quiet", body:"Nothing logged this week. What's on your mind?", action:'Quick Capture', fn:`openQuickCapture()`});
 
-  // Always: busiest folder nudge
-  const busiest = SECTIONS.map(s=>({s,count:getCached(s).length})).sort((a,b)=>b.count-a.count)[0];
-  if(busiest && busiest.count > 0){
-    const tile = loadTiles().find(t=>t.id===busiest.s)||{emoji:'📝',name:busiest.s};
-    reminders.push({icon:tile.emoji, title:`${tile.name} is your top folder`, body:`${busiest.count} ${busiest.count===1?'note':'notes'} saved. Keep adding.`, action:'Open', fn:`switchView('${busiest.s}',null)`});
-  }
-
-  // Always: quick capture fallback
-  reminders.push({icon:'⚡', title:'Something on your mind?', body:'Use Quick Capture to save a thought before it slips away.', action:'Capture Now', fn:`openQuickCapture()`});
-
+  if(!reminders.length){ container.style.display='none'; return; }
   container.style.display = 'block';
   container.innerHTML = `<div style="font-family:'Playfair Display',serif;font-size:14px;font-weight:600;color:var(--brown);margin-bottom:10px;">💡 Smart Reminders</div>` +
     reminders.slice(0,2).map(r=>`
@@ -1277,97 +1315,172 @@ function checkSmartReminders(){
       <button class="smart-reminder-action" onclick="${r.fn};this.closest('.smart-reminder').remove()">${r.action}</button>
     </div>`).join('');
 }
-function fireConfetti(){
-  const count=120, defaults={startVelocity:28,spread:360,ticks:60,zIndex:9999};
-  const r=(a,b)=>Math.random()*(b-a)+a;
-  confetti({...defaults,particleCount:count*0.4,origin:{x:r(0.1,0.3),y:Math.random()-0.2},colors:['#D4860A','#5C3D2E','#C45C26','#F2C14E','#6B7F5E']});
-  confetti({...defaults,particleCount:count*0.4,origin:{x:r(0.7,0.9),y:Math.random()-0.2},colors:['#D4860A','#5C3D2E','#C45C26','#F2C14E','#6B7F5E']});
-  setTimeout(()=>confetti({...defaults,particleCount:count*0.3,origin:{x:0.5,y:0.4},startVelocity:35,colors:['#FFFEF9','#D4860A','#C45C26','#9B72CF']}),150);
+// ── SHARE A NOTE ──
+let shareItem = null;
+function openShareModal(section, itemId){
+  shareItem = getCached(section).find(i=>i.id===itemId);
+  if(!shareItem) return;
+  const tile = loadTiles().find(t=>t.id===section)||{name:section};
+  document.getElementById('shareCardTag').textContent = tile.name.toUpperCase();
+  document.getElementById('shareCardTitle').textContent = shareItem.title;
+  document.getElementById('shareCardBody').textContent = shareItem.body||'';
+  document.getElementById('shareCardDate').textContent = shareItem.created_at?new Date(shareItem.created_at).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}):'';
+  document.getElementById('shareModal').classList.add('open');
+}
+function closeShareModal(){ document.getElementById('shareModal').classList.remove('open'); shareItem=null; }
+function shareAsText(){
+  if(!shareItem) return;
+  const tile = loadTiles().find(t=>t.id===shareItem.section)||{name:shareItem.section};
+  const text = `📌 ${tile.name.toUpperCase()}\n\n${shareItem.title}${shareItem.body?'\n\n'+shareItem.body:''}\n\n— Dad Brain`;
+  navigator.clipboard.writeText(text).then(()=>showToast('Copied ✓')).catch(()=>showToast('Copy failed'));
+  closeShareModal();
+}
+function shareNative(){
+  if(!shareItem) return;
+  const tile = loadTiles().find(t=>t.id===shareItem.section)||{name:shareItem.section};
+  const text = `📌 ${tile.name.toUpperCase()}\n\n${shareItem.title}${shareItem.body?'\n\n'+shareItem.body:''}\n\n— Dad Brain`;
+  if(navigator.share){ navigator.share({title:'Dad Brain Note',text}).catch(()=>{}); }
+  else { navigator.clipboard.writeText(text).then(()=>showToast('Copied ✓')); }
+  closeShareModal();
 }
 
-function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2400);}
-function dismissReminder(){document.getElementById('reminderBanner').style.display='none';}
+// ── PDF EXPORT ──
+function exportToPDF(){
+  const tiles = loadTiles();
+  let html=`<!DOCTYPE html><html><head><meta charset="UTF-8"><style>
+    body{font-family:Georgia,serif;max-width:700px;margin:40px auto;padding:0 24px;color:#1C1A16;}
+    h1{font-size:28px;color:#5C3D2E;border-bottom:3px solid #D4860A;padding-bottom:12px;margin-bottom:8px;}
+    .sub{color:#9E9589;font-size:13px;margin-bottom:32px;}
+    h2{color:#5C3D2E;text-transform:uppercase;letter-spacing:1px;font-size:12px;margin:28px 0 12px;}
+    .note{background:#FFFEF9;border:1px solid rgba(92,61,46,0.15);border-left:4px solid #D4860A;border-radius:8px;padding:14px 16px;margin-bottom:12px;}
+    .nt{font-weight:700;font-size:15px;margin-bottom:4px;}
+    .nb{font-size:13px;color:#5C4A3A;line-height:1.6;}
+    .nd{font-size:11px;color:#9E9589;margin-top:8px;}
+    .footer{margin-top:40px;padding-top:16px;border-top:1px solid #eee;font-size:11px;color:#9E9589;text-align:center;}
+  </style></head><body>
+
+  <h1>🧠 Dad Brain</h1>
+  <div class="sub">Exported ${new Date().toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'})}</div>`;
+  tiles.forEach(tile=>{
+    const items=getCached(tile.id); if(!items.length) return;
+    html+=`<h2>${tile.emoji} ${tile.name}</h2>`;
+    items.forEach(item=>{
+      html+=`<div class="note"><div class="nt">${item.title}</div>${item.body?`<div class="nb">${item.body}</div>`:''}<div class="nd">${item.created_at?new Date(item.created_at).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}):''}</div></div>`;
+    });
+  });
+  html+=`<div class="footer">Dad Brain — Your brain, organized.</div></body></html>`;
+  const blob=new Blob([html],{type:'text/html'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a'); a.href=url; a.download='dad-brain-export.html'; a.click();
+  URL.revokeObjectURL(url);
+  showToast('Downloaded ✓ — open file, then print → Save as PDF');
+}
+
+// ── COPY ALL NOTES ──
+function copyAllNotes(){
+const tiles=loadTiles();
+let text=`DAD BRAIN — ${new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})}\n${'='.repeat(50)}\n\n`;
+tiles.forEach(tile=>{
+const items=getCached(tile.id); if(!items.length) return;
+text+=`${tile.emoji} ${tile.name.toUpperCase()}\n${'-'.repeat(30)}\n`;
+items.forEach(item=>{ text+=`• ${item.title}${item.body?'\n  '+item.body:''}\n`; });
+text+=’\n’;
+});
+navigator.clipboard.writeText(text+’\n— Dad Brain’).then(()=>showToast(‘All notes copied ✓’)).catch(()=>showToast(‘Copy failed’));
+}
+
+function fireConfetti(){
+const count=120, defaults={startVelocity:28,spread:360,ticks:60,zIndex:9999};
+const r=(a,b)=>Math.random()*(b-a)+a;
+confetti({…defaults,particleCount:count*0.4,origin:{x:r(0.1,0.3),y:Math.random()-0.2},colors:[’#D4860A’,’#5C3D2E’,’#C45C26’,’#F2C14E’,’#6B7F5E’]});
+confetti({…defaults,particleCount:count*0.4,origin:{x:r(0.7,0.9),y:Math.random()-0.2},colors:[’#D4860A’,’#5C3D2E’,’#C45C26’,’#F2C14E’,’#6B7F5E’]});
+setTimeout(()=>confetti({…defaults,particleCount:count*0.3,origin:{x:0.5,y:0.4},startVelocity:35,colors:[’#FFFEF9’,’#D4860A’,’#C45C26’,’#9B72CF’]}),150);
+}
+
+function showToast(msg){const t=document.getElementById(‘toast’);t.textContent=msg;t.classList.add(‘show’);setTimeout(()=>t.classList.remove(‘show’),2400);}
+function dismissReminder(){document.getElementById(‘reminderBanner’).style.display=‘none’;}
 
 function setGreeting(){
-  const s=loadSettings(), name=s.userName||'Dad', hr=new Date().getHours();
-  const px=hr<12?'Good morning':hr<17?'Hey':'Evening';
-  const el=document.getElementById('greeting'); if(el) el.textContent=`${px}, ${name} 👋`;
-  const de=document.getElementById('headerDate'); if(de) de.textContent=new Date().toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'});
-  if(s.tagline){const tl=document.getElementById('homeTagline');if(tl)tl.textContent=s.tagline;}
+const s=loadSettings(), name=s.userName||‘Dad’, hr=new Date().getHours();
+const px=hr<12?‘Good morning’:hr<17?‘Hey’:‘Evening’;
+const el=document.getElementById(‘greeting’); if(el) el.textContent=`${px}, ${name} 👋`;
+const de=document.getElementById(‘headerDate’); if(de) de.textContent=new Date().toLocaleDateString(‘en-US’,{weekday:‘long’,month:‘long’,day:‘numeric’});
+if(s.tagline){const tl=document.getElementById(‘homeTagline’);if(tl)tl.textContent=s.tagline;}
 }
 function updateAlertDropBadge(){
-  let count=0; SECTIONS.forEach(s=>getCached(s).forEach(i=>{if(i.alert_time)count++;}));
-  const el=document.getElementById('drop-badge-alerts'); if(el) el.textContent=count;
-  const dot=document.getElementById('menuAlertDot'); if(dot) dot.style.display=count>0?'block':'none';
+let count=0; SECTIONS.forEach(s=>getCached(s).forEach(i=>{if(i.alert_time)count++;}));
+const el=document.getElementById(‘drop-badge-alerts’); if(el) el.textContent=count;
+const dot=document.getElementById(‘menuAlertDot’); if(dot) dot.style.display=count>0?‘block’:‘none’;
 }
 
 // ── DROPDOWN ──
-function toggleMenu(){document.getElementById('dropdown').classList.toggle('open');}
-function closeMenu(){document.getElementById('dropdown').classList.remove('open');}
-document.addEventListener('click',e=>{const w=document.getElementById('menuWrap');if(w&&!w.contains(e.target))closeMenu();});
+function toggleMenu(){document.getElementById(‘dropdown’).classList.toggle(‘open’);}
+function closeMenu(){document.getElementById(‘dropdown’).classList.remove(‘open’);}
+document.addEventListener(‘click’,e=>{const w=document.getElementById(‘menuWrap’);if(w&&!w.contains(e.target))closeMenu();});
 
 // ── AUTH ──
 async function doLogin(){
-  const email=document.getElementById('loginEmail').value.trim();
-  const pass=document.getElementById('loginPassword').value;
-  const err=document.getElementById('loginErr'), btn=document.getElementById('loginBtn');
-  if(!email||!pass){err.textContent='Please enter your email and password.';err.style.display='block';return;}
-  btn.innerHTML='<span class="spinner"></span>Signing in…'; btn.disabled=true;
-  const {data,error}=await sb.auth.signInWithPassword({email,password:pass});
-  btn.innerHTML='Sign In'; btn.disabled=false;
-  if(error){err.textContent=error.message;err.style.display='block';return;}
-  err.style.display='none';
-  await onLogin(data.user);
+const email=document.getElementById(‘loginEmail’).value.trim();
+const pass=document.getElementById(‘loginPassword’).value;
+const err=document.getElementById(‘loginErr’), btn=document.getElementById(‘loginBtn’);
+if(!email||!pass){err.textContent=‘Please enter your email and password.’;err.style.display=‘block’;return;}
+btn.innerHTML=’<span class="spinner"></span>Signing in…’; btn.disabled=true;
+const {data,error}=await sb.auth.signInWithPassword({email,password:pass});
+btn.innerHTML=‘Sign In’; btn.disabled=false;
+if(error){err.textContent=error.message;err.style.display=‘block’;return;}
+err.style.display=‘none’;
+await onLogin(data.user);
 }
 async function doRegister(){
-  const email=document.getElementById('regEmail').value.trim();
-  const pass=document.getElementById('regPassword').value;
-  const err=document.getElementById('regErr'), btn=document.getElementById('regBtn');
-  if(!email||!pass){err.textContent='Please fill in all fields.';err.style.display='block';return;}
-  if(pass.length<6){err.textContent='Password must be at least 6 characters.';err.style.display='block';return;}
-  btn.innerHTML='<span class="spinner"></span>Creating…'; btn.disabled=true;
-  const {data,error}=await sb.auth.signUp({email,password:pass});
-  btn.innerHTML='Create Account'; btn.disabled=false;
-  if(error){err.textContent=error.message;err.style.display='block';return;}
-  if(data.user&&data.session){ await onLogin(data.user); }
-  else {
-    document.getElementById('regErr').textContent='✅ Check your email to confirm, then sign in.';
-    document.getElementById('regErr').style.display='block';
-    document.getElementById('regErr').style.color='var(--sage)';
-  }
+const email=document.getElementById(‘regEmail’).value.trim();
+const pass=document.getElementById(‘regPassword’).value;
+const err=document.getElementById(‘regErr’), btn=document.getElementById(‘regBtn’);
+if(!email||!pass){err.textContent=‘Please fill in all fields.’;err.style.display=‘block’;return;}
+if(pass.length<6){err.textContent=‘Password must be at least 6 characters.’;err.style.display=‘block’;return;}
+btn.innerHTML=’<span class="spinner"></span>Creating…’; btn.disabled=true;
+const {data,error}=await sb.auth.signUp({email,password:pass});
+btn.innerHTML=‘Create Account’; btn.disabled=false;
+if(error){err.textContent=error.message;err.style.display=‘block’;return;}
+if(data.user&&data.session){ await onLogin(data.user); }
+else {
+document.getElementById(‘regErr’).textContent=‘✅ Check your email to confirm, then sign in.’;
+document.getElementById(‘regErr’).style.display=‘block’;
+document.getElementById(‘regErr’).style.color=‘var(–sage)’;
+}
 }
 async function onLogin(user){
-  currentUser=user;
-  document.getElementById('loginScreen').style.display='none';
-  document.getElementById('registerScreen').style.display='none';
-  document.getElementById('quickCaptureBtn').style.display='flex';
-  showToast('Welcome back 👋');
-  await fetchAllSections();
-  setGreeting(); setDailyPrompt(); updateDadScore(); checkSmartReminders();
-  updateBadges(); updateAlertDropBadge();
-  renderShelf(); renderRecent();
-  applySettings(loadSettings());
+currentUser=user;
+document.getElementById(‘loginScreen’).style.display=‘none’;
+document.getElementById(‘registerScreen’).style.display=‘none’;
+document.getElementById(‘quickCaptureBtn’).style.display=‘flex’;
+showToast(‘Welcome back 👋’);
+await fetchAllSections();
+setGreeting(); setDailyPrompt(); updateDadScore(); checkSmartReminders();
+updateBadges(); updateAlertDropBadge();
+renderShelf(); renderRecent();
+applySettings(loadSettings());
 }
 async function logOut(){
-  if(!confirm('Sign out of Dad Brain?')) return;
-  await sb.auth.signOut(); currentUser=null; dataCache={};
-  document.getElementById('loginScreen').style.display='flex';
+if(!confirm(‘Sign out of Dad Brain?’)) return;
+await sb.auth.signOut(); currentUser=null; dataCache={};
+document.getElementById(‘loginScreen’).style.display=‘flex’;
 }
-function showRegister(){document.getElementById('loginScreen').style.display='none';document.getElementById('registerScreen').style.display='flex';}
-function showLogin(){document.getElementById('registerScreen').style.display='none';document.getElementById('loginScreen').style.display='flex';}
+function showRegister(){document.getElementById(‘loginScreen’).style.display=‘none’;document.getElementById(‘registerScreen’).style.display=‘flex’;}
+function showLogin(){document.getElementById(‘registerScreen’).style.display=‘none’;document.getElementById(‘loginScreen’).style.display=‘flex’;}
 
-document.getElementById('modal').addEventListener('click',e=>{if(e.target===document.getElementById('modal'))closeModal();});
-document.getElementById('tileModal').addEventListener('click',e=>{if(e.target===document.getElementById('tileModal'))closeTileModal();});
-document.getElementById('quickModal').addEventListener('click',e=>{if(e.target===document.getElementById('quickModal'))closeQuickCapture();});
+document.getElementById(‘modal’).addEventListener(‘click’,e=>{if(e.target===document.getElementById(‘modal’))closeModal();});
+document.getElementById(‘tileModal’).addEventListener(‘click’,e=>{if(e.target===document.getElementById(‘tileModal’))closeTileModal();});
+document.getElementById(‘quickModal’).addEventListener(‘click’,e=>{if(e.target===document.getElementById(‘quickModal’))closeQuickCapture();});
+document.getElementById(‘shareModal’).addEventListener(‘click’,e=>{if(e.target===document.getElementById(‘shareModal’))closeShareModal();});
 
 // ── INIT ──
 (async()=>{
-  setGreeting(); applySettings(loadSettings());
-  const {data:{session}}=await sb.auth.getSession();
-  if(session?.user) await onLogin(session.user);
-  sb.auth.onAuthStateChange(async(event,session)=>{
-    if(event==='SIGNED_IN'&&session?.user&&!currentUser) await onLogin(session.user);
-  });
+setGreeting(); applySettings(loadSettings());
+const {data:{session}}=await sb.auth.getSession();
+if(session?.user) await onLogin(session.user);
+sb.auth.onAuthStateChange(async(event,session)=>{
+if(event===‘SIGNED_IN’&&session?.user&&!currentUser) await onLogin(session.user);
+});
 })();
 </script>
 
