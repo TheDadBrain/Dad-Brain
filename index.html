@@ -1492,12 +1492,22 @@ if(el) el.addEventListener(‘click’,e=>{ if(e.target===el){ if(id===‘modal�
 
 // ── INIT ──
 (async()=>{
-setGreeting(); applySettings(loadSettings());
+// Attach login button listener as backup
+const lb = document.getElementById(‘loginBtn’);
+if(lb) lb.addEventListener(‘click’, doLogin);
+const rb = document.getElementById(‘regBtn’);
+if(rb) rb.addEventListener(‘click’, doRegister);
+try {
+setGreeting();
+applySettings(loadSettings());
+} catch(e){ console.warn(‘Init setup error:’,e); }
+try {
 const {data:{session}}=await sb.auth.getSession();
 if(session?.user) await onLogin(session.user);
 sb.auth.onAuthStateChange(async(event,session)=>{
 if(event===‘SIGNED_IN’&&session?.user&&!currentUser) await onLogin(session.user);
 });
+} catch(e){ console.error(‘Supabase init error:’,e); }
 })();
 </script>
 
