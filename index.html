@@ -382,7 +382,7 @@ header { padding:0 16px; height:56px; }
   </div>
 
   <!-- MILESTONE BANNER -->
-  <div id="milestoneBanner" style="display:none;background:linear-gradient(135deg,#D4860A,#C45C26);border-radius:16px;padding:16px 20px;margin-bottom:24px;display:none;align-items:center;gap:14px;color:#FFFEF9;">
+  <div id="milestoneBanner" style="display:none;background:linear-gradient(135deg,#D4860A,#C45C26);border-radius:16px;padding:16px 20px;margin-bottom:24px;align-items:center;gap:14px;color:#FFFEF9;">
     <div style="font-size:32px;" id="milestoneEmoji">🏅</div>
     <div>
       <div style="font-family:'Playfair Display',serif;font-size:16px;font-weight:700;" id="milestoneTitle">Milestone!</div>
@@ -636,7 +636,7 @@ header { padding:0 16px; height:56px; }
 
 <!-- QUICK CAPTURE FLOATING BUTTON -->
 
-<button class="quick-capture-btn" id="quickCaptureBtn" onclick="openQuickCapture()" title="Quick capture">➕</button>
+<button class="quick-capture-btn" id="quickCaptureBtn" onclick="openQuickCapture()" title="Quick capture" style="display:none;">➕</button>
 
 <!-- QUICK CAPTURE MODAL -->
 
@@ -739,7 +739,7 @@ function switchView(view,btn){
   currentSection=view;
   document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active'));
   if(btn) btn.classList.add('active');
-  if(view==='home'){renderShelf();renderRecent();setDailyPrompt();updateDadScore();}
+  if(view==='home'){renderShelf();renderRecent();setDailyPrompt();updateDadScore();checkSmartReminders();}
   else if(view==='settings') populateSettings();
   else if(view==='alerts') renderAlerts();
   else renderSection(view,true);
@@ -1134,7 +1134,162 @@ function logDailyPrompt(){
   setTimeout(()=>document.getElementById('inputBody').focus(),100);
 }
 
-// ── CONFETTI ──
+// ── QUICK CAPTURE ──
+let selectedQuickFolder = 'family';
+function openQuickCapture(){
+  const tiles = loadTiles();
+  document.getElementById('quickInput').value = '';
+  selectedQuickFolder = tiles[0]?.id || 'family';
+  document.getElementById('folderPicker').innerHTML = tiles.map(t=>`
+    <button class="folder-pick-btn${t.id===selectedQuickFolder?' selected':''}" onclick="selectFolder('${t.id}',this)">
+      ${t.emoji} ${t.name}
+    </button>`).join('');
+  document.getElementById('quickModal').classList.add('open');
+  setTimeout(()=>document.getElementById('quickInput').focus(),100);
+}
+function closeQuickCapture(){ document.getElementById('quickModal').classList.remove('open'); stopVoice(); }
+function selectFolder(id, btn){
+  selectedQuickFolder = id;
+  document.querySelectorAll('.folder-pick-btn').forEach(b=>b.classList.remove('selected'));
+  btn.classList.add('selected');
+}
+async function saveQuickCapture(){
+  const text = document.getElementById('quickInput').value.trim();
+  if(!text){ document.getElementById('quickInput').style.borderColor='var(--rust)'; return; }
+  document.getElementById('quickInput').style.borderColor='';
+  const payload = { user_id:currentUser.id, section:selectedQuickFolder, title:text, body:null, link:null, reminder:null, alert_time:null };
+  const {error} = await sb.from('entries').insert(payload);
+  if(error){ showToast('Error saving'); return; }
+  closeQuickCapture();
+  await fetchSection(selectedQuickFolder);
+  renderSection(selectedQuickFolder);
+  updateBadges(); renderShelf();
+  if(currentSection==='home') renderRecent();
+  showToast('Captured ✓'); fireConfetti(); updateDadScore();
+}
+
+// ── VOICE TO TEXT ──
+let recognition = null;
+let isRecording = false;
+let voiceTarget = 'modal'; // 'modal' or 'quick'
+
+function initSpeechRecognition(){
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if(!SR) return null;
+  const r = new SR();
+  r.continuous = false;
+  r.interimResults = false;
+  r.lang = 'en-US';
+  r.onresult = (e) => {
+    const transcript = e.results[0][0].transcript;
+    if(voiceTarget === 'modal'){
+      const el = document.getElementById('inputBody');
+      el.value = (el.value ? el.value + ' ' : '') + transcript;
+    } else {
+      const el = document.getElementById('quickInput');
+      el.value = (el.value ? el.value + ' ' : '') + transcript;
+    }
+    stopVoice();
+  };
+  r.onerror = () => stopVoice();
+  r.onend = () => stopVoice();
+  return r;
+}
+
+function toggleVoice(){
+  voiceTarget = 'modal';
+  if(isRecording){ stopVoice(); return; }
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if(!SR){ showToast('Voice not supported on this browser'); return; }
+  recognition = initSpeechRecognition();
+  recognition.start();
+  isRecording = true;
+  document.getElementById('voiceBtn').classList.add('recording');
+  document.getElementById('voiceBtnText').textContent = '⏹ Recording… tap to stop';
+}
+function toggleQuickVoice(){
+  voiceTarget = 'quick';
+  if(isRecording){ stopVoice(); return; }
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if(!SR){ showToast('Voice not supported on this browser'); return; }
+  recognition = initSpeechRecognition();
+  recognition.start();
+  isRecording = true;
+  document.getElementById('quickVoiceBtn').classList.add('recording');
+  document.getElementById('quickVoiceBtnText').textContent = '⏹ Recording… tap to stop';
+}
+function stopVoice(){
+  if(recognition){ try{ recognition.stop(); }catch(e){} recognition = null; }
+  isRecording = false;
+  const vb = document.getElementById('voiceBtn');
+  const qvb = document.getElementById('quickVoiceBtn');
+  if(vb){ vb.classList.remove('recording'); document.getElementById('voiceBtnText').textContent = '🎤 Tap to dictate a note'; }
+  if(qvb){ qvb.classList.remove('recording'); document.getElementById('quickVoiceBtnText').textContent = '🎤 Tap to dictate'; }
+}
+
+// ── SMART REMINDERS ──
+function checkSmartReminders(){
+  const container = document.getElementById('smartReminders');
+  if(!container) return;
+  const reminders = [];
+  const now = new Date();
+
+  // Upcoming alerts in next 48 hours
+  SECTIONS.forEach(s => getCached(s).forEach(item => {
+    if(!item.alert_time) return;
+    const alertDt = new Date(item.alert_time);
+    const hoursUntil = (alertDt - now) / 3600000;
+    if(hoursUntil > 0 && hoursUntil <= 48){
+      reminders.push({
+        icon:'⏰',
+        title:`Upcoming: ${item.title}`,
+        body:`Alert in ${hoursUntil < 1 ? 'less than an hour' : Math.round(hoursUntil)+' hours'}`,
+        action:'View Alerts',
+        fn:`switchView('alerts',null)`
+      });
+    }
+  }));
+
+  // Gift idea older than 30 days
+  const gifts = getCached('gifts');
+  if(gifts.length > 0){
+    const oldest = gifts[gifts.length-1];
+    const daysSince = Math.floor((now - new Date(oldest.created_at)) / 86400000);
+    if(daysSince >= 30){
+      reminders.push({
+        icon:'🎁',
+        title:'Gift idea check-in',
+        body:`You saved "${oldest.title}" ${daysSince} days ago. Still relevant?`,
+        action:'Review',
+        fn:`switchView('gifts',null)`
+      });
+    }
+  }
+
+  // No notes this week nudge
+  const oneWeekAgo = Date.now() - 7*24*60*60*1000;
+  let weekCount = 0;
+  SECTIONS.forEach(s => getCached(s).forEach(i=>{ if(new Date(i.created_at).getTime()>=oneWeekAgo) weekCount++; }));
+  if(weekCount === 0){
+    reminders.push({
+      icon:'🧠',
+      title:"What's on your mind?",
+      body:"Tap to do a quick brain dump — takes 10 seconds.",
+      action:'Quick Capture',
+      fn:`openQuickCapture()`
+    });
+  }
+
+  if(!reminders.length){ container.style.display='none'; return; }
+  container.style.display='block';
+  container.innerHTML = `<div style="font-family:'Playfair Display',serif;font-size:14px;font-weight:600;color:var(--brown);margin-bottom:10px;">💡 Smart Reminders</div>` +
+    reminders.slice(0,2).map(r=>`
+    <div class="smart-reminder">
+      <div style="font-size:22px;flex-shrink:0">${r.icon}</div>
+      <div class="smart-reminder-text"><strong>${r.title}</strong>${r.body}</div>
+      <button class="smart-reminder-action" onclick="${r.fn};this.closest('.smart-reminder').remove()">${r.action}</button>
+    </div>`).join('');
+}
 function fireConfetti(){
   const count=120, defaults={startVelocity:28,spread:360,ticks:60,zIndex:9999};
   const r=(a,b)=>Math.random()*(b-a)+a;
@@ -1198,9 +1353,10 @@ async function onLogin(user){
   currentUser=user;
   document.getElementById('loginScreen').style.display='none';
   document.getElementById('registerScreen').style.display='none';
+  document.getElementById('quickCaptureBtn').style.display='flex';
   showToast('Welcome back 👋');
   await fetchAllSections();
-  setGreeting(); setDailyPrompt(); updateDadScore();
+  setGreeting(); setDailyPrompt(); updateDadScore(); checkSmartReminders();
   updateBadges(); updateAlertDropBadge();
   renderShelf(); renderRecent();
   applySettings(loadSettings());
@@ -1215,6 +1371,7 @@ function showLogin(){document.getElementById('registerScreen').style.display='no
 
 document.getElementById('modal').addEventListener('click',e=>{if(e.target===document.getElementById('modal'))closeModal();});
 document.getElementById('tileModal').addEventListener('click',e=>{if(e.target===document.getElementById('tileModal'))closeTileModal();});
+document.getElementById('quickModal').addEventListener('click',e=>{if(e.target===document.getElementById('quickModal'))closeQuickCapture();});
 
 // ── INIT ──
 (async()=>{
