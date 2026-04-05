@@ -8,6 +8,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 :root {
@@ -751,6 +752,7 @@ async function saveItem() {
   renderShelf();
   if(currentSection==='home') renderRecent();
   showToast(editingItemId ? 'Entry updated ✓' : 'Saved ✓');
+  if(!editingItemId) fireConfetti();
   updateAlertDropBadge();
 }
 
@@ -1098,7 +1100,18 @@ async function clearAllData(){
   renderShelf(); renderRecent(); updateBadges(); showToast('All data cleared');
 }
 
-function dismissReminder(){ document.getElementById('reminderBanner').style.display='none'; }
+function fireConfetti() {
+  const count = 120;
+  const defaults = { startVelocity: 28, spread: 360, ticks: 60, zIndex: 9999 };
+  function randomInRange(min, max) { return Math.random() * (max - min) + min; }
+  // Two simultaneous bursts from left and right
+  confetti({ ...defaults, particleCount: count * 0.4, origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 }, colors: ['#D4860A','#5C3D2E','#C45C26','#F2C14E','#6B7F5E'] });
+  confetti({ ...defaults, particleCount: count * 0.4, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 }, colors: ['#D4860A','#5C3D2E','#C45C26','#F2C14E','#6B7F5E'] });
+  // Center burst slightly delayed
+  setTimeout(() => {
+    confetti({ ...defaults, particleCount: count * 0.3, origin: { x: 0.5, y: 0.4 }, startVelocity: 35, colors: ['#FFFEF9','#D4860A','#C45C26','#9B72CF'] });
+  }, 150);
+}
 function showToast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2400); }
 
 function setGreeting(){
