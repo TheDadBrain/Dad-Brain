@@ -1240,13 +1240,7 @@ function checkSmartReminders(){
     const alertDt = new Date(item.alert_time);
     const hoursUntil = (alertDt - now) / 3600000;
     if(hoursUntil > 0 && hoursUntil <= 48){
-      reminders.push({
-        icon:'⏰',
-        title:`Upcoming: ${item.title}`,
-        body:`Alert in ${hoursUntil < 1 ? 'less than an hour' : Math.round(hoursUntil)+' hours'}`,
-        action:'View Alerts',
-        fn:`switchView('alerts',null)`
-      });
+      reminders.push({icon:'⏰', title:`Upcoming: ${item.title}`, body:`Alert in ${hoursUntil<1?'less than an hour':Math.round(hoursUntil)+' hours'}`, action:'View Alerts', fn:`switchView('alerts',null)`});
     }
   }));
 
@@ -1255,33 +1249,26 @@ function checkSmartReminders(){
   if(gifts.length > 0){
     const oldest = gifts[gifts.length-1];
     const daysSince = Math.floor((now - new Date(oldest.created_at)) / 86400000);
-    if(daysSince >= 30){
-      reminders.push({
-        icon:'🎁',
-        title:'Gift idea check-in',
-        body:`You saved "${oldest.title}" ${daysSince} days ago. Still relevant?`,
-        action:'Review',
-        fn:`switchView('gifts',null)`
-      });
-    }
+    if(daysSince >= 30) reminders.push({icon:'🎁', title:'Gift idea check-in', body:`You saved "${oldest.title}" ${daysSince} days ago. Still relevant?`, action:'Review', fn:`switchView('gifts',null)`});
   }
 
   // No notes this week nudge
   const oneWeekAgo = Date.now() - 7*24*60*60*1000;
   let weekCount = 0;
   SECTIONS.forEach(s => getCached(s).forEach(i=>{ if(new Date(i.created_at).getTime()>=oneWeekAgo) weekCount++; }));
-  if(weekCount === 0){
-    reminders.push({
-      icon:'🧠',
-      title:"What's on your mind?",
-      body:"Tap to do a quick brain dump — takes 10 seconds.",
-      action:'Quick Capture',
-      fn:`openQuickCapture()`
-    });
+  if(weekCount === 0) reminders.push({icon:'🧠', title:"What's on your mind?", body:'Tap to do a quick brain dump — takes 10 seconds.', action:'Quick Capture', fn:`openQuickCapture()`});
+
+  // Always: busiest folder nudge
+  const busiest = SECTIONS.map(s=>({s,count:getCached(s).length})).sort((a,b)=>b.count-a.count)[0];
+  if(busiest && busiest.count > 0){
+    const tile = loadTiles().find(t=>t.id===busiest.s)||{emoji:'📝',name:busiest.s};
+    reminders.push({icon:tile.emoji, title:`${tile.name} is your top folder`, body:`${busiest.count} ${busiest.count===1?'note':'notes'} saved. Keep adding.`, action:'Open', fn:`switchView('${busiest.s}',null)`});
   }
 
-  if(!reminders.length){ container.style.display='none'; return; }
-  container.style.display='block';
+  // Always: quick capture fallback
+  reminders.push({icon:'⚡', title:'Something on your mind?', body:'Use Quick Capture to save a thought before it slips away.', action:'Capture Now', fn:`openQuickCapture()`});
+
+  container.style.display = 'block';
   container.innerHTML = `<div style="font-family:'Playfair Display',serif;font-size:14px;font-weight:600;color:var(--brown);margin-bottom:10px;">💡 Smart Reminders</div>` +
     reminders.slice(0,2).map(r=>`
     <div class="smart-reminder">
