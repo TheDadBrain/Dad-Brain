@@ -30,14 +30,7 @@ header { position:sticky; top:0; z-index:100; background:rgba(245,240,232,0.97);
 
 /* LAYOUT */
 .layout { display:flex; max-width:860px; margin:0 auto; padding:28px 24px; position:relative; z-index:1; }
-
-/* CARDS */
-.cards-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:16px; }
-@media (max-width:600px) { .cards-grid { grid-template-columns:1fr; } }
-/* SIDEBAR */
 .sidebar { display:none !important; }
-
-/* MAIN */
 .main { flex:1; min-width:0; }
 .view { display:none; }
 .view.active { display:block; animation:fadeIn 0.2s ease; }
@@ -56,6 +49,7 @@ header { position:sticky; top:0; z-index:100; background:rgba(245,240,232,0.97);
 
 /* CARDS */
 .cards-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:16px; }
+@media (max-width:600px) { .cards-grid { grid-template-columns:1fr; } }
 .card { background:#FFFEF9; border:1px solid rgba(92,61,46,0.12); border-radius:14px; padding:18px; transition:all 0.2s; position:relative; overflow:hidden; }
 .card::before { content:’’; position:absolute; top:0; left:0; right:0; height:4px; background:var(–card-accent,var(–amber)); border-radius:14px 14px 0 0; }
 .card:hover { transform:translateY(-3px); box-shadow:var(–shadow-hover); border-color:rgba(92,61,46,0.2); }
@@ -88,23 +82,11 @@ header { position:sticky; top:0; z-index:100; background:rgba(245,240,232,0.97);
 .tile-emoji { font-size:34px; display:block; margin-bottom:10px; line-height:1.2; }
 .tile-name { font-size:14px; font-weight:700; color:#1C1A16; margin-bottom:2px; }
 .tile-count { font-size:11px; color:#7A6F65; font-weight:400; }
-.btn-edit-hub { display:inline-flex; align-items:center; gap:6px; background:none; border:1px solid var(–border); border-radius:9px; padding:7px 14px; font-size:12px; color:var(–muted); font-weight:500; cursor:pointer; font-family:‘DM Sans’,sans-serif; transition:all 0.15s; }
-.btn-edit-hub:hover { background:var(–card-bg); color:var(–brown); border-color:var(–brown); }
 .shelf-tile.edit-mode { border:1.5px dashed var(–amber); animation:wiggle 0.5s infinite alternate; }
 .shelf-tile.sortable-chosen { box-shadow:0 12px 40px rgba(28,26,22,0.2) !important; transform:scale(1.04) !important; opacity:0.95; z-index:999; animation:none !important; }
 .shelf-tile.sortable-ghost { opacity:0.3; border:2px dashed var(–amber); background:var(–cream); }
 @keyframes wiggle { from{transform:rotate(-0.5deg)} to{transform:rotate(0.5deg)} }
 .tile-edit-btn { position:absolute; top:6px; right:6px; background:var(–amber); color:white; border:none; border-radius:6px; width:22px; height:22px; font-size:11px; cursor:pointer; display:flex; align-items:center; justify-content:center; }
-
-/* LINK CARDS */
-.link-card { display:flex; gap:14px; align-items:flex-start; background:var(–card-bg); border:1px solid var(–border); border-radius:14px; padding:16px; transition:all 0.2s; margin-bottom:10px; }
-.link-card:hover { transform:translateX(4px); box-shadow:var(–shadow); }
-.link-favicon { width:40px; height:40px; border-radius:10px; background:var(–cream); border:1px solid var(–border); display:flex; align-items:center; justify-content:center; font-size:20px; flex-shrink:0; }
-.link-info { flex:1; min-width:0; }
-.link-title { font-weight:500; font-size:14px; color:var(–ink); margin-bottom:3px; }
-.link-url { font-size:12px; color:var(–muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-.link-note { font-size:12px; color:var(–sage); margin-top:4px; font-style:italic; }
-.link-actions { display:flex; flex-direction:column; gap:6px; align-items:flex-end; flex-shrink:0; }
 
 /* MODAL */
 .modal-overlay { display:none; position:fixed; inset:0; background:rgba(28,26,22,0.6); backdrop-filter:blur(6px); z-index:200; align-items:center; justify-content:center; padding:20px; }
@@ -123,8 +105,7 @@ header { position:sticky; top:0; z-index:100; background:rgba(245,240,232,0.97);
 .btn-save { padding:10px 24px; border-radius:10px; background:var(–brown); color:var(–cream); border:none; font-size:13px; font-weight:500; cursor:pointer; font-family:‘DM Sans’,sans-serif; transition:all 0.15s; }
 .btn-save:hover { background:var(–rust); }
 
-/* ALERT TOGGLE */
-.alert-row { display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; }
+/* TOGGLE */
 .toggle-switch { position:relative; width:42px; height:24px; flex-shrink:0; }
 .toggle-switch input { opacity:0; width:0; height:0; }
 .toggle-slider { position:absolute; inset:0; background:rgba(92,61,46,0.18); border-radius:24px; cursor:pointer; transition:0.2s; }
@@ -167,16 +148,16 @@ header { position:sticky; top:0; z-index:100; background:rgba(245,240,232,0.97);
 .toast { position:fixed; bottom:28px; left:50%; transform:translateX(-50%) translateY(20px); background:var(–brown); color:var(–cream); padding:12px 24px; border-radius:30px; font-size:14px; font-weight:500; opacity:0; transition:all 0.3s ease; z-index:999; pointer-events:none; white-space:nowrap; }
 .toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
 
-/* LOADING SPINNER */
+/* SPINNER */
 .spinner { display:inline-block; width:18px; height:18px; border:2px solid rgba(255,255,255,0.3); border-top-color:white; border-radius:50%; animation:spin 0.7s linear infinite; vertical-align:middle; margin-right:6px; }
 @keyframes spin { to{transform:rotate(360deg)} }
 
-/* DROPDOWN MENU */
+/* DROPDOWN */
 .menu-wrap { position:relative; }
 .menu-btn { background:none; border:1px solid var(–border); border-radius:9px; width:38px; height:38px; font-size:18px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all 0.15s; position:relative; color:var(–ink); }
 .menu-btn:hover { background:var(–card-bg); }
 .menu-dot { position:absolute; top:6px; right:6px; width:7px; height:7px; background:var(–rust); border-radius:50%; border:1.5px solid var(–cream); }
-.dropdown { display:none; position:absolute; top:calc(100% + 8px); right:0; background:#FFFEF9; border:1px solid rgba(92,61,46,0.15); border-radius:14px; box-shadow:0 8px 40px rgba(28,26,22,0.22); min-width:200px; z-index:1000; overflow:hidden; animation:slideUp 0.15s ease; opacity:1; }
+.dropdown { display:none; position:absolute; top:calc(100% + 8px); right:0; background:#FFFEF9; border:1px solid rgba(92,61,46,0.15); border-radius:14px; box-shadow:0 8px 40px rgba(28,26,22,0.22); min-width:200px; z-index:1000; overflow:hidden; animation:slideUp 0.15s ease; }
 .dropdown.open { display:block; }
 .drop-item { display:flex; align-items:center; justify-content:space-between; width:100%; padding:12px 16px; background:none; border:none; font-size:14px; font-family:‘DM Sans’,sans-serif; color:var(–ink); cursor:pointer; text-align:left; transition:background 0.12s; gap:8px; }
 .drop-item:hover { background:var(–cream); }
@@ -184,7 +165,7 @@ header { position:sticky; top:0; z-index:100; background:rgba(245,240,232,0.97);
 .drop-divider { height:1px; background:var(–border); margin:2px 0; }
 .drop-badge { background:var(–amber); color:white; font-size:10px; font-weight:700; padding:1px 7px; border-radius:20px; min-width:18px; text-align:center; margin-left:auto; }
 
-/* LOGIN SCREEN */
+/* LOGIN */
 #loginScreen { position:fixed; inset:0; background:#F5F0E8 !important; z-index:9999; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:24px; overflow-y:auto; min-height:100vh; min-height:100dvh; }
 #registerScreen { position:fixed; inset:0; background:#F5F0E8 !important; z-index:9999; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:24px; overflow-y:auto; min-height:100vh; min-height:100dvh; }
 .login-card { background:#FFFEF9; border:1px solid rgba(92,61,46,0.1); border-radius:28px; padding:40px 36px; width:100%; max-width:420px; box-shadow:0 20px 80px rgba(28,26,22,0.12); animation:slideUp 0.3s ease; }
@@ -201,7 +182,6 @@ header { position:sticky; top:0; z-index:100; background:rgba(245,240,232,0.97);
 .login-btn { width:100%; padding:16px; background:#5C3D2E; color:#FFFEF9; border:none; border-radius:14px; font-size:16px; font-weight:600; font-family:‘DM Sans’,sans-serif; cursor:pointer; transition:all 0.15s; margin-top:8px; letter-spacing:0.2px; }
 .login-btn:hover { background:#C45C26; transform:translateY(-1px); box-shadow:0 6px 20px rgba(92,61,46,0.3); }
 .login-faceid { width:100%; padding:13px; background:none; border:1.5px solid rgba(92,61,46,0.15); border-radius:14px; font-size:14px; font-family:‘DM Sans’,sans-serif; color:#5C3D2E; cursor:pointer; transition:all 0.15s; margin-top:10px; display:flex; align-items:center; justify-content:center; gap:8px; font-weight:500; }
-.login-faceid:hover { background:#F5F0E8; border-color:#5C3D2E; }
 .login-divider { display:flex; align-items:center; gap:12px; margin:20px 0; color:#9E9589; font-size:12px; }
 .login-divider::before, .login-divider::after { content:’’; flex:1; height:1px; background:rgba(92,61,46,0.12); }
 .login-err { font-size:13px; color:#C45C26; margin-top:10px; display:none; text-align:center; background:rgba(196,92,38,0.08); padding:10px 14px; border-radius:10px; }
@@ -210,7 +190,7 @@ header { position:sticky; top:0; z-index:100; background:rgba(245,240,232,0.97);
 ::-webkit-scrollbar-track { background:transparent; }
 ::-webkit-scrollbar-thumb { background:var(–border); border-radius:3px; }
 
-/* SHARE CARD */
+/* SHARE */
 .share-card-preview { background:linear-gradient(135deg,#5C3D2E,#3d2519); border-radius:20px; padding:28px; color:#FFFEF9; margin:16px 0; position:relative; overflow:hidden; }
 .share-card-preview::before { content:‘🧠’; position:absolute; right:-10px; bottom:-10px; font-size:80px; opacity:0.08; }
 .share-card-tag { font-size:10px; font-weight:700; letter-spacing:1.2px; text-transform:uppercase; color:rgba(255,255,255,0.5); margin-bottom:8px; }
@@ -223,27 +203,19 @@ header { position:sticky; top:0; z-index:100; background:rgba(245,240,232,0.97);
 .share-btn-primary:hover { background:#C45C26; }
 .share-btn-secondary { background:var(–cream); color:#5C3D2E; border:1.5px solid rgba(92,61,46,0.2); }
 .share-btn-secondary:hover { background:#5C3D2E; color:#FFFEF9; }
-.quick-capture-btn { position:fixed; bottom:28px; right:24px; width:58px; height:58px; background:#5C3D2E; border:none; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:26px; cursor:pointer; box-shadow:0 6px 24px rgba(92,61,46,0.35); z-index:150; transition:all 0.2s; }
-.quick-capture-btn:hover { background:#C45C26; transform:scale(1.08); }
-.quick-capture-btn:active { transform:scale(0.95); }
 
-/* VOICE BUTTON */
+/* VOICE */
 .voice-btn { display:flex; align-items:center; gap:8px; background:var(–cream); border:1.5px solid var(–border); border-radius:12px; padding:10px 16px; font-size:13px; font-weight:500; color:var(–brown); cursor:pointer; font-family:‘DM Sans’,sans-serif; transition:all 0.2s; width:100%; margin-top:8px; }
 .voice-btn:hover { background:var(–brown); color:#FFFEF9; border-color:var(–brown); }
 .voice-btn.recording { background:#C45C26; color:#FFFEF9; border-color:#C45C26; animation:pulse 1s infinite; }
 @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.7} }
 .voice-dot { width:10px; height:10px; border-radius:50%; background:currentColor; flex-shrink:0; }
 
-/* SMART REMINDER STRIP */
+/* SMART REMINDERS */
 .smart-reminder { background:#FFFEF9; border:1px solid rgba(212,134,10,0.3); border-left:4px solid #D4860A; border-radius:12px; padding:14px 16px; margin-bottom:12px; display:flex; align-items:center; gap:12px; }
 .smart-reminder-text { flex:1; font-size:13px; color:#1C1A16; line-height:1.5; }
 .smart-reminder-text strong { display:block; font-weight:600; margin-bottom:2px; }
 .smart-reminder-action { background:#5C3D2E; color:#FFFEF9; border:none; border-radius:8px; padding:7px 14px; font-size:12px; font-weight:500; cursor:pointer; font-family:‘DM Sans’,sans-serif; white-space:nowrap; }
-
-/* QUICK CAPTURE FOLDER PICKER */
-.folder-picker { display:grid; grid-template-columns:repeat(2,1fr); gap:8px; margin:12px 0; }
-.folder-pick-btn { background:var(–cream); border:1.5px solid var(–border); border-radius:10px; padding:10px 8px; font-size:12px; font-weight:600; color:var(–ink); cursor:pointer; font-family:‘DM Sans’,sans-serif; transition:all 0.15s; text-align:center; }
-.folder-pick-btn:hover, .folder-pick-btn.selected { background:#5C3D2E; color:#FFFEF9; border-color:#5C3D2E; }
 
 @media (max-width:700px) {
 .sidebar { display:none; }
@@ -262,7 +234,7 @@ header { padding:0 16px; height:56px; }
 </head>
 <body>
 
-<!-- LOGIN SCREEN -->
+<!-- LOGIN -->
 
 <div id="loginScreen">
   <div class="login-card">
@@ -280,18 +252,16 @@ header { padding:0 16px; height:56px; }
       <label>Password</label>
       <input type="password" id="loginPassword" placeholder="••••••••" autocomplete="current-password">
     </div>
-    <div class="login-err" id="loginErr">Incorrect email or password.</div>
+    <div class="login-err" id="loginErr"></div>
     <button class="login-btn" id="loginBtn" onclick="doLogin()">Sign In</button>
     <div class="login-divider">or</div>
-    <button class="login-faceid" onclick="showRegister()" style="border-color:transparent;color:#9E9589;font-size:13px;">
-      First time? Create account
-    </button>
+    <button class="login-faceid" onclick="showRegister()" style="border-color:transparent;color:#9E9589;font-size:13px;">First time? Create account</button>
   </div>
 </div>
 
-<!-- REGISTER SCREEN -->
+<!-- REGISTER -->
 
-<div id="registerScreen" style="display:none;position:fixed;inset:0;background:var(--cream);z-index:500;align-items:center;justify-content:center;padding:24px;">
+<div id="registerScreen" style="display:none;">
   <div class="login-card">
     <div class="login-logo">
       <div class="login-logo-icon">🧠</div>
@@ -307,7 +277,7 @@ header { padding:0 16px; height:56px; }
       <label>Password</label>
       <input type="password" id="regPassword" placeholder="Choose a password (min 6 chars)">
     </div>
-    <div class="login-err" id="regErr">Please fill in all fields.</div>
+    <div class="login-err" id="regErr"></div>
     <button class="login-btn" id="regBtn" onclick="doRegister()">Create Account</button>
     <button class="login-faceid" onclick="showLogin()" style="border-color:transparent;color:var(--muted);font-size:13px;margin-top:8px">← Back to Sign In</button>
   </div>
@@ -316,19 +286,16 @@ header { padding:0 16px; height:56px; }
 <header>
   <div class="logo">
     <div class="logo-icon">🧠</div>
-    <div class="logo-text" id="logoText">Dad <span>Brain</span></div>
+    <div class="logo-text">Dad <span>Brain</span></div>
   </div>
   <div style="display:flex;align-items:center;gap:12px">
     <div class="header-date" id="headerDate"></div>
     <div class="menu-wrap" id="menuWrap">
-      <button class="menu-btn" onclick="toggleMenu()" id="menuBtn">
-        <span id="menuAlertDot" class="menu-dot" style="display:none"></span>
-        ☰
+      <button class="menu-btn" onclick="toggleMenu()">
+        <span id="menuAlertDot" class="menu-dot" style="display:none"></span>☰
       </button>
       <div class="dropdown" id="dropdown">
-        <button class="drop-item" onclick="closeMenu();switchView('alerts',null)">
-          Alerts <span class="drop-badge" id="drop-badge-alerts">0</span>
-        </button>
+        <button class="drop-item" onclick="closeMenu();switchView('alerts',null)">Alerts <span class="drop-badge" id="drop-badge-alerts">0</span></button>
         <div class="drop-divider"></div>
         <button class="drop-item" onclick="closeMenu();toggleEditMode()">Edit Hub</button>
         <button class="drop-item" onclick="closeMenu();switchView('settings',null)">Settings</button>
@@ -339,293 +306,88 @@ header { padding:0 16px; height:56px; }
 </header>
 
 <div class="layout">
-  <nav class="sidebar">
-    <div class="sidebar-section">
-      <div class="sidebar-label">Home</div>
-      <button class="nav-item active" onclick="switchView('home',this)"><span class="nav-emoji">🏠</span> Dashboard</button>
-    </div>
-    <div class="sidebar-section">
-      <div class="sidebar-label">Family</div>
-      <button class="nav-item" onclick="switchView('family',this)"><span class="nav-emoji" id="ne-family">👨‍👩‍👧</span>&nbsp;<span id="nn-family">Family</span><span class="nav-badge" id="badge-family">0</span></button>
-      <button class="nav-item" onclick="switchView('gifts',this)"><span class="nav-emoji" id="ne-gifts">🎁</span>&nbsp;<span id="nn-gifts">Gift Ideas</span><span class="nav-badge" id="badge-gifts">0</span></button>
-    </div>
-    <div class="sidebar-section">
-      <div class="sidebar-label">For Me</div>
-      <button class="nav-item" onclick="switchView('hobbies',this)"><span class="nav-emoji" id="ne-hobbies">🎯</span>&nbsp;<span id="nn-hobbies">Hobbies</span><span class="nav-badge" id="badge-hobbies">0</span></button>
-      <button class="nav-item" onclick="switchView('reads',this)"><span class="nav-emoji" id="ne-reads">📚</span>&nbsp;<span id="nn-reads">Reads & Links</span><span class="nav-badge" id="badge-reads">0</span></button>
-      <button class="nav-item" onclick="switchView('remember',this)"><span class="nav-emoji" id="ne-remember">💡</span>&nbsp;<span id="nn-remember">Remember This</span><span class="nav-badge" id="badge-remember">0</span></button>
-    </div>
-    <div class="sidebar-section">
-      <div class="sidebar-label">Business</div>
-      <button class="nav-item" onclick="switchView('business',this)"><span class="nav-emoji" id="ne-business">⚡</span>&nbsp;<span id="nn-business">Side Hustle</span><span class="nav-badge" id="badge-business">0</span></button>
-    </div>
-    <div class="sidebar-section bottom">
-      <div class="sidebar-label">App</div>
-      <button class="nav-item" onclick="switchView('alerts',this)"><span class="nav-emoji">🔔</span>&nbsp;Alerts<span class="nav-badge" id="badge-alerts">0</span></button>
-      <button class="nav-item" onclick="switchView('settings',this)"><span class="nav-emoji">⚙️</span>&nbsp;Settings</button>
-    </div>
-  </nav>
+<main class="main">
 
-  <main class="main">
-
-```
 <!-- HOME -->
+
 <div class="view active" id="view-home">
   <div class="home-greeting" id="greeting">Hey, Dad 👋</div>
   <div class="home-sub" id="homeTagline">Here's what's waiting for you.</div>
-
-  <!-- DAD SCORE + DAILY PROMPT ROW -->
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:24px;">
-    <!-- DAD SCORE -->
-    <div id="dadScoreCard" style="background:#FFFEF9;border:1px solid rgba(92,61,46,0.12);border-radius:16px;padding:16px;box-shadow:0 2px 12px rgba(28,26,22,0.07);position:relative;overflow:hidden;">
+    <div style="background:#FFFEF9;border:1px solid rgba(92,61,46,0.12);border-radius:16px;padding:16px;box-shadow:0 2px 12px rgba(28,26,22,0.07);position:relative;overflow:hidden;">
       <div style="font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#7A6F65;margin-bottom:6px;">Dad Score</div>
       <div id="dadScoreNumber" style="font-family:'Playfair Display',serif;font-size:36px;font-weight:700;color:#5C3D2E;line-height:1;">0</div>
       <div id="dadScoreLabel" style="font-size:11px;color:#7A6F65;margin-top:4px;">notes this week</div>
       <div id="dadScoreRank" style="font-size:11px;font-weight:600;color:#6B7F5E;margin-top:6px;"></div>
       <div style="position:absolute;bottom:-8px;right:-4px;font-size:48px;opacity:0.08;">🏆</div>
     </div>
-    <!-- DAILY PROMPT -->
-    <div id="dailyPromptCard" style="background:linear-gradient(135deg,#5C3D2E,#3d2519);border-radius:16px;padding:16px;box-shadow:0 2px 12px rgba(28,26,22,0.15);position:relative;overflow:hidden;cursor:pointer;" onclick="logDailyPrompt()">
+    <div style="background:linear-gradient(135deg,#5C3D2E,#3d2519);border-radius:16px;padding:16px;box-shadow:0 2px 12px rgba(28,26,22,0.15);position:relative;overflow:hidden;cursor:pointer;" onclick="logDailyPrompt()">
       <div style="font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,0.6);margin-bottom:8px;">Daily Prompt</div>
       <div id="dailyPromptText" style="font-size:13px;font-weight:500;color:#FFFEF9;line-height:1.5;"></div>
       <div style="font-size:11px;color:rgba(255,255,255,0.5);margin-top:10px;">Tap to answer →</div>
       <div style="position:absolute;bottom:-8px;right:-4px;font-size:48px;opacity:0.1;">💭</div>
     </div>
   </div>
-
-  <!-- MILESTONE BANNER -->
   <div id="milestoneBanner" style="display:none;background:linear-gradient(135deg,#D4860A,#C45C26);border-radius:16px;padding:16px 20px;margin-bottom:24px;align-items:center;gap:14px;color:#FFFEF9;">
     <div style="font-size:32px;" id="milestoneEmoji">🏅</div>
     <div>
       <div style="font-family:'Playfair Display',serif;font-size:16px;font-weight:700;" id="milestoneTitle">Milestone!</div>
       <div style="font-size:12px;opacity:0.85;margin-top:2px;" id="milestoneBody">You're on a roll.</div>
     </div>
-    <button onclick="document.getElementById('milestoneBanner').style.display='none'" style="margin-left:auto;background:rgba(255,255,255,0.2);border:none;color:#FFFEF9;border-radius:8px;padding:6px 12px;font-size:12px;cursor:pointer;font-family:'DM Sans',sans-serif;">✕</button>
+    <button onclick="document.getElementById('milestoneBanner').style.display='none'" style="margin-left:auto;background:rgba(255,255,255,0.2);border:none;color:#FFFEF9;border-radius:8px;padding:6px 12px;font-size:12px;cursor:pointer;">✕</button>
   </div>
-
-  <!-- SMART REMINDERS -->
   <div id="smartReminders" style="margin-bottom:20px;display:none;"></div>
-
   <div id="reminderBanner" class="reminder-strip" style="display:none">
     <div class="reminder-icon">🔔</div>
     <div class="reminder-text"><h3 id="reminderTitle"></h3><p id="reminderBody"></p></div>
     <button class="reminder-dismiss" onclick="dismissReminder()">Got it</button>
   </div>
-  <div class="hub-toolbar">
-    <div class="section-title" style="margin-bottom:0">Your Folders</div>
-  </div>
+  <div class="hub-toolbar"><div class="section-title" style="margin-bottom:0">Your Folders</div></div>
   <div class="quick-shelf" id="quickShelf"></div>
   <div class="section-title">Recently Added</div>
   <div class="cards-grid" id="recentCards"></div>
 </div>
 
-<!-- FAMILY -->
-<div class="view" id="view-family">
-  <button class="btn-back" onclick="switchView('home',null)">← Home</button>
-  <div class="page-header">
-    <div><div class="page-title" id="ptitle-family">👨‍👩‍👧 Family</div><div class="page-subtitle">Things to remember about your people</div></div>
-    <button class="btn-add" onclick="openModal('family')">+ Add Note</button>
-  </div>
-  <div class="cards-grid" id="cards-family"></div>
-</div>
+<!-- SECTION VIEWS -->
 
-<!-- GIFTS -->
-<div class="view" id="view-gifts">
-  <button class="btn-back" onclick="switchView('home',null)">← Home</button>
-  <div class="page-header">
-    <div><div class="page-title" id="ptitle-gifts">🎁 Gift Ideas</div><div class="page-subtitle">Never scramble for a gift again</div></div>
-    <button class="btn-add" onclick="openModal('gifts')">+ Add Idea</button>
-  </div>
-  <div class="cards-grid" id="cards-gifts"></div>
-</div>
-
-<!-- HOBBIES -->
-<div class="view" id="view-hobbies">
-  <button class="btn-back" onclick="switchView('home',null)">← Home</button>
-  <div class="page-header">
-    <div><div class="page-title" id="ptitle-hobbies">🎯 Hobbies</div><div class="page-subtitle">Your interests — don't lose them</div></div>
-    <button class="btn-add" onclick="openModal('hobbies')">+ Add Hobby</button>
-  </div>
-  <div class="cards-grid" id="cards-hobbies"></div>
-</div>
-
-<!-- READS -->
-<div class="view" id="view-reads">
-  <button class="btn-back" onclick="switchView('home',null)">← Home</button>
-  <div class="page-header">
-    <div><div class="page-title" id="ptitle-reads">📚 Reads & Links</div><div class="page-subtitle">Articles, videos, things to come back to</div></div>
-    <button class="btn-add" onclick="openModal('reads')">+ Save Link</button>
-  </div>
-  <div id="cards-reads"></div>
-</div>
-
-<!-- REMEMBER -->
-<div class="view" id="view-remember">
-  <button class="btn-back" onclick="switchView('home',null)">← Home</button>
-  <div class="page-header">
-    <div><div class="page-title" id="ptitle-remember">💡 Remember This</div><div class="page-subtitle">Random gold — don't let it slip</div></div>
-    <button class="btn-add" onclick="openModal('remember')">+ Add Note</button>
-  </div>
-  <div class="cards-grid" id="cards-remember"></div>
-</div>
-
-<!-- BUSINESS -->
-<div class="view" id="view-business">
-  <button class="btn-back" onclick="switchView('home',null)">← Home</button>
-  <div class="page-header">
-    <div><div class="page-title" id="ptitle-business">⚡ Side Hustle</div><div class="page-subtitle">Fractional operator — build the empire</div></div>
-    <button class="btn-add" onclick="openModal('business')">+ Add Note</button>
-  </div>
-  <div class="cards-grid" id="cards-business"></div>
-</div>
-
-<!-- MOVIES -->
-<div class="view" id="view-movies">
-  <button class="btn-back" onclick="switchView('home',null)">← Home</button>
-  <div class="page-header">
-    <div><div class="page-title" id="ptitle-movies">🎬 Movies</div><div class="page-subtitle">Films to watch when you get a moment</div></div>
-    <button class="btn-add" onclick="openModal('movies')">+ Add Movie</button>
-  </div>
-  <div class="cards-grid" id="cards-movies"></div>
-</div>
-
-<!-- TV SHOWS -->
-<div class="view" id="view-tv">
-  <button class="btn-back" onclick="switchView('home',null)">← Home</button>
-  <div class="page-header">
-    <div><div class="page-title" id="ptitle-tv">📺 TV Shows</div><div class="page-subtitle">Series worth your limited free time</div></div>
-    <button class="btn-add" onclick="openModal('tv')">+ Add Show</button>
-  </div>
-  <div class="cards-grid" id="cards-tv"></div>
-</div>
-
-<!-- RESTAURANTS -->
-<div class="view" id="view-restaurants">
-  <button class="btn-back" onclick="switchView('home',null)">← Home</button>
-  <div class="page-header">
-    <div><div class="page-title" id="ptitle-restaurants">🍽️ Restaurants</div><div class="page-subtitle">Places to take the family or a date night</div></div>
-    <button class="btn-add" onclick="openModal('restaurants')">+ Add Restaurant</button>
-  </div>
-  <div class="cards-grid" id="cards-restaurants"></div>
-</div>
-
-<!-- ALERTS -->
-<div class="view" id="view-alerts">
-  <button class="btn-back" onclick="switchView('home',null)">← Home</button>
-  <div class="page-header">
-    <div><div class="page-title">🔔 Alerts</div><div class="page-subtitle">All your scheduled reminders in one place</div></div>
-  </div>
-  <div id="alerts-list"></div>
-</div>
+<div class="view" id="view-family"><button class="btn-back" onclick="switchView('home',null)">← Home</button><div class="page-header"><div><div class="page-title" id="ptitle-family">👨‍👩‍👧 Family</div><div class="page-subtitle">Things to remember about your people</div></div><button class="btn-add" onclick="openModal('family')">+ Add Note</button></div><div class="cards-grid" id="cards-family"></div></div>
+<div class="view" id="view-gifts"><button class="btn-back" onclick="switchView('home',null)">← Home</button><div class="page-header"><div><div class="page-title" id="ptitle-gifts">🎁 Gift Ideas</div><div class="page-subtitle">Never scramble for a gift again</div></div><button class="btn-add" onclick="openModal('gifts')">+ Add Idea</button></div><div class="cards-grid" id="cards-gifts"></div></div>
+<div class="view" id="view-hobbies"><button class="btn-back" onclick="switchView('home',null)">← Home</button><div class="page-header"><div><div class="page-title" id="ptitle-hobbies">🎯 Hobbies</div><div class="page-subtitle">Your interests — don't lose them</div></div><button class="btn-add" onclick="openModal('hobbies')">+ Add Hobby</button></div><div class="cards-grid" id="cards-hobbies"></div></div>
+<div class="view" id="view-reads"><button class="btn-back" onclick="switchView('home',null)">← Home</button><div class="page-header"><div><div class="page-title" id="ptitle-reads">📚 Reads & Links</div><div class="page-subtitle">Articles, videos, things to come back to</div></div><button class="btn-add" onclick="openModal('reads')">+ Save Link</button></div><div id="cards-reads"></div></div>
+<div class="view" id="view-remember"><button class="btn-back" onclick="switchView('home',null)">← Home</button><div class="page-header"><div><div class="page-title" id="ptitle-remember">💡 Remember This</div><div class="page-subtitle">Random gold — don't let it slip</div></div><button class="btn-add" onclick="openModal('remember')">+ Add Note</button></div><div class="cards-grid" id="cards-remember"></div></div>
+<div class="view" id="view-business"><button class="btn-back" onclick="switchView('home',null)">← Home</button><div class="page-header"><div><div class="page-title" id="ptitle-business">⚡ Side Hustle</div><div class="page-subtitle">Fractional operator — build the empire</div></div><button class="btn-add" onclick="openModal('business')">+ Add Note</button></div><div class="cards-grid" id="cards-business"></div></div>
+<div class="view" id="view-movies"><button class="btn-back" onclick="switchView('home',null)">← Home</button><div class="page-header"><div><div class="page-title" id="ptitle-movies">🎬 Movies</div><div class="page-subtitle">Films to watch when you get a moment</div></div><button class="btn-add" onclick="openModal('movies')">+ Add Movie</button></div><div class="cards-grid" id="cards-movies"></div></div>
+<div class="view" id="view-tv"><button class="btn-back" onclick="switchView('home',null)">← Home</button><div class="page-header"><div><div class="page-title" id="ptitle-tv">📺 TV Shows</div><div class="page-subtitle">Series worth your limited free time</div></div><button class="btn-add" onclick="openModal('tv')">+ Add Show</button></div><div class="cards-grid" id="cards-tv"></div></div>
+<div class="view" id="view-restaurants"><button class="btn-back" onclick="switchView('home',null)">← Home</button><div class="page-header"><div><div class="page-title" id="ptitle-restaurants">🍽️ Restaurants</div><div class="page-subtitle">Places to take the family or a date night</div></div><button class="btn-add" onclick="openModal('restaurants')">+ Add Restaurant</button></div><div class="cards-grid" id="cards-restaurants"></div></div>
+<div class="view" id="view-alerts"><button class="btn-back" onclick="switchView('home',null)">← Home</button><div class="page-header"><div><div class="page-title">🔔 Alerts</div><div class="page-subtitle">All your scheduled reminders in one place</div></div></div><div id="alerts-list"></div></div>
 
 <!-- SETTINGS -->
+
 <div class="view" id="view-settings">
   <button class="btn-back" onclick="switchView('home',null)">← Home</button>
-  <div class="page-header">
-    <div><div class="page-title">⚙️ Settings</div><div class="page-subtitle">Make Dad Brain feel like yours</div></div>
-  </div>
-  <div class="settings-section">
-    <div class="settings-section-title">🏷️ Your Identity</div>
-    <div class="settings-row">
-      <div class="settings-label"><div class="settings-label-name">Your Name</div><div class="settings-label-desc">Used in greetings</div></div>
-      <input class="settings-input" type="text" id="s-userName" placeholder="Dad">
-    </div>
-    <div class="settings-row">
-      <div class="settings-label"><div class="settings-label-name">Home Tagline</div><div class="settings-label-desc">Line under your greeting</div></div>
-      <input class="settings-input" type="text" id="s-tagline" placeholder="Here's what's waiting for you.">
-    </div>
-  </div>
-  <div class="settings-section">
-    <div class="settings-section-title">🎨 Appearance</div>
-    <div class="settings-row">
-      <div class="settings-label"><div class="settings-label-name">Accent Color</div><div class="settings-label-desc">Buttons, badges, highlights</div></div>
-      <div style="display:flex;align-items:center;gap:8px">
-        <input type="color" id="s-accentColor" style="width:40px;height:34px;border:1px solid var(--border);border-radius:8px;padding:2px;cursor:pointer;background:var(--cream)">
-        <input class="settings-input" type="text" id="s-accentHex" style="width:90px" placeholder="#D4860A">
-      </div>
-    </div>
-    <div class="settings-row">
-      <div class="settings-label"><div class="settings-label-name">Theme</div><div class="settings-label-desc">Overall feel of the app</div></div>
-      <div class="theme-picker" id="themePicker">
-        <div class="theme-swatch active" data-theme="warm" style="background:#F5F0E8" title="Warm Paper"></div>
-        <div class="theme-swatch" data-theme="white" style="background:#F0F0F0" title="Clean White"></div>
-        <div class="theme-swatch" data-theme="dark" style="background:#1C1A16" title="Dark Ink"></div>
-        <div class="theme-swatch" data-theme="slate" style="background:#1E2A38" title="Slate Night"></div>
-        <div class="theme-swatch" data-theme="forest" style="background:#1E2E22" title="Forest"></div>
-      </div>
-    </div>
-  </div>
-  <div class="settings-section">
-    <div class="settings-section-title">📁 Folder Names & Icons</div>
-    <div id="folderSettingsList"></div>
-  </div>
-  <div class="settings-section">
-    <div class="settings-section-title">📤 Share & Export</div>
-    <div class="settings-row">
-      <div class="settings-label"><div class="settings-label-name">Export to PDF</div><div class="settings-label-desc">Download all your notes as a PDF</div></div>
-      <button class="btn-save" onclick="exportToPDF()" style="padding:9px 18px;font-size:13px;">Download PDF</button>
-    </div>
-    <div class="settings-row">
-      <div class="settings-label"><div class="settings-label-name">Copy All Notes</div><div class="settings-label-desc">Copy everything to clipboard</div></div>
-      <button class="btn-save" onclick="copyAllNotes()" style="padding:9px 18px;font-size:13px;background:var(--sage);">Copy All</button>
-    </div>
-  </div>
-  <div class="settings-section">
-    <div class="settings-row">
-      <div class="settings-label"><div class="settings-label-name">Clear All Data</div><div class="settings-label-desc">Permanently wipe all your notes</div></div>
-      <button class="btn-danger" onclick="clearAllData()">Clear Everything</button>
-    </div>
-  </div>
+  <div class="page-header"><div><div class="page-title">⚙️ Settings</div><div class="page-subtitle">Make Dad Brain feel like yours</div></div></div>
+  <div class="settings-section"><div class="settings-section-title">🏷️ Your Identity</div><div class="settings-row"><div class="settings-label"><div class="settings-label-name">Your Name</div><div class="settings-label-desc">Used in greetings</div></div><input class="settings-input" type="text" id="s-userName" placeholder="Dad"></div><div class="settings-row"><div class="settings-label"><div class="settings-label-name">Home Tagline</div><div class="settings-label-desc">Line under your greeting</div></div><input class="settings-input" type="text" id="s-tagline" placeholder="Here's what's waiting for you."></div></div>
+  <div class="settings-section"><div class="settings-section-title">🎨 Appearance</div><div class="settings-row"><div class="settings-label"><div class="settings-label-name">Accent Color</div><div class="settings-label-desc">Buttons, badges, highlights</div></div><div style="display:flex;align-items:center;gap:8px"><input type="color" id="s-accentColor" style="width:40px;height:34px;border:1px solid var(--border);border-radius:8px;padding:2px;cursor:pointer;background:var(--cream)"><input class="settings-input" type="text" id="s-accentHex" style="width:90px" placeholder="#D4860A"></div></div><div class="settings-row"><div class="settings-label"><div class="settings-label-name">Theme</div><div class="settings-label-desc">Overall feel of the app</div></div><div class="theme-picker" id="themePicker"><div class="theme-swatch active" data-theme="warm" style="background:#F5F0E8" title="Warm Paper"></div><div class="theme-swatch" data-theme="white" style="background:#F0F0F0" title="Clean White"></div><div class="theme-swatch" data-theme="dark" style="background:#1C1A16" title="Dark Ink"></div><div class="theme-swatch" data-theme="slate" style="background:#1E2A38" title="Slate Night"></div><div class="theme-swatch" data-theme="forest" style="background:#1E2E22" title="Forest"></div></div></div></div>
+  <div class="settings-section"><div class="settings-section-title">📁 Folder Names & Icons</div><div id="folderSettingsList"></div></div>
+  <div class="settings-section"><div class="settings-section-title">📤 Share & Export</div><div class="settings-row"><div class="settings-label"><div class="settings-label-name">Export to PDF</div><div class="settings-label-desc">Download all your notes as a PDF</div></div><button class="btn-save" onclick="exportToPDF()" style="padding:9px 18px;font-size:13px;">Download PDF</button></div><div class="settings-row"><div class="settings-label"><div class="settings-label-name">Copy All Notes</div><div class="settings-label-desc">Copy everything to clipboard</div></div><button class="btn-save" onclick="copyAllNotes()" style="padding:9px 18px;font-size:13px;background:var(--sage);">Copy All</button></div></div>
+  <div class="settings-section"><div class="settings-row"><div class="settings-label"><div class="settings-label-name">Clear All Data</div><div class="settings-label-desc">Permanently wipe all your notes</div></div><button class="btn-danger" onclick="clearAllData()">Clear Everything</button></div></div>
   <button class="btn-settings-save" onclick="saveSettings()">💾 Save All Settings</button>
 </div>
-```
 
-  </main>
+</main>
 </div>
 
-<!-- ADD / EDIT MODAL -->
+<!-- ADD/EDIT MODAL -->
 
 <div class="modal-overlay" id="modal">
   <div class="modal">
     <div class="modal-title" id="modalTitle">Add Note</div>
-    <div class="form-field">
-      <label>Title</label>
-      <input type="text" id="inputTitle" placeholder="What's this about?">
-    </div>
-    <div class="form-field">
-      <label>Notes</label>
-      <textarea id="inputBody" placeholder="Details, context, why it matters..."></textarea>
-      <button class="voice-btn" id="voiceBtn" onclick="toggleVoice()">
-        <span class="voice-dot"></span>
-        <span id="voiceBtnText">🎤 Tap to dictate a note</span>
-      </button>
-    </div>
-    <div class="form-field">
-      <label>🔗 Link / URL</label>
-      <input type="url" id="inputLink" placeholder="https://...">
-    </div>
-    <div class="form-field">
-      <label>🔔 Reminder Note</label>
-      <input type="text" id="inputReminder" placeholder="e.g. Follow up this weekend">
-    </div>
-    <div class="form-field">
-      <label style="margin-bottom:10px;display:block">⏰ Schedule Alert</label>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:8px">
-        <div>
-          <div style="font-size:11px;color:var(--muted);margin-bottom:5px;font-weight:500;">DATE</div>
-          <input type="date" id="inputAlertDate" style="width:100%;padding:11px 12px;background:var(--cream);border:1px solid var(--border);border-radius:10px;font-size:14px;font-family:'DM Sans',sans-serif;color:var(--ink);outline:none;">
-        </div>
-        <div>
-          <div style="font-size:11px;color:var(--muted);margin-bottom:5px;font-weight:500;">TIME</div>
-          <input type="time" id="inputAlertTime" style="width:100%;padding:11px 12px;background:var(--cream);border:1px solid var(--border);border-radius:10px;font-size:14px;font-family:'DM Sans',sans-serif;color:var(--ink);outline:none;">
-        </div>
-      </div>
-      <div style="font-size:11px;color:var(--muted);">Leave blank for no alert</div>
-    </div>
-    <div class="modal-actions">
-      <button class="btn-cancel" onclick="closeModal()">Cancel</button>
-      <button class="btn-save" id="modalSaveBtn" onclick="saveItem()">Save It</button>
-    </div>
+    <div class="form-field"><label>Title</label><input type="text" id="inputTitle" placeholder="What's this about?"></div>
+    <div class="form-field"><label>Notes</label><textarea id="inputBody" placeholder="Details, context, why it matters..."></textarea><button class="voice-btn" id="voiceBtn" onclick="toggleVoice()"><span class="voice-dot"></span><span id="voiceBtnText">🎤 Tap to dictate a note</span></button></div>
+    <div class="form-field"><label>🔗 Link / URL</label><input type="url" id="inputLink" placeholder="https://..."></div>
+    <div class="form-field"><label>🔔 Reminder Note</label><input type="text" id="inputReminder" placeholder="e.g. Follow up this weekend"></div>
+    <div class="form-field"><label style="margin-bottom:10px;display:block">⏰ Schedule Alert</label><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:8px"><div><div style="font-size:11px;color:var(--muted);margin-bottom:5px;font-weight:500;">DATE</div><input type="date" id="inputAlertDate" style="width:100%;padding:11px 12px;background:var(--cream);border:1px solid var(--border);border-radius:10px;font-size:14px;font-family:'DM Sans',sans-serif;color:var(--ink);outline:none;"></div><div><div style="font-size:11px;color:var(--muted);margin-bottom:5px;font-weight:500;">TIME</div><input type="time" id="inputAlertTime" style="width:100%;padding:11px 12px;background:var(--cream);border:1px solid var(--border);border-radius:10px;font-size:14px;font-family:'DM Sans',sans-serif;color:var(--ink);outline:none;"></div></div><div style="font-size:11px;color:var(--muted);">Leave blank for no alert</div></div>
+    <div class="modal-actions"><button class="btn-cancel" onclick="closeModal()">Cancel</button><button class="btn-save" id="modalSaveBtn" onclick="saveItem()">Save It</button></div>
   </div>
 </div>
 
@@ -634,25 +396,9 @@ header { padding:0 16px; height:56px; }
 <div class="modal-overlay" id="tileModal">
   <div class="modal">
     <div class="modal-title">Edit Folder</div>
-    <div class="tile-editor-grid">
-      <div>
-        <label style="display:block;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px">Icon</label>
-        <input class="emoji-picker-input" type="text" id="tileEmojiInput" maxlength="2" placeholder="😀">
-      </div>
-      <div class="form-field" style="margin:0">
-        <label>Name</label>
-        <input type="text" id="tileNameInput" placeholder="Folder name">
-        <div id="tileNameLock" style="display:none;font-size:11px;color:var(--muted);margin-top:5px;">🔒 Core folder — name is permanent</div>
-      </div>
-    </div>
-    <div class="form-field" style="margin-top:12px">
-      <label>Position (1 = first)</label>
-      <input type="number" id="tilePosInput" min="1" placeholder="e.g. 1" style="width:100%;padding:10px 14px;background:var(--cream);border:1px solid var(--border);border-radius:10px;font-size:14px;font-family:'DM Sans',sans-serif;color:var(--ink);outline:none;">
-    </div>
-    <div class="modal-actions">
-      <button class="btn-cancel" onclick="closeTileModal()">Cancel</button>
-      <button class="btn-save" onclick="saveTile()">Save</button>
-    </div>
+    <div class="tile-editor-grid"><div><label style="display:block;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px">Icon</label><input class="emoji-picker-input" type="text" id="tileEmojiInput" maxlength="2" placeholder="😀"></div><div class="form-field" style="margin:0"><label>Name</label><input type="text" id="tileNameInput" placeholder="Folder name"><div id="tileNameLock" style="display:none;font-size:11px;color:var(--muted);margin-top:5px;">🔒 Core folder — name is permanent</div></div></div>
+    <div class="form-field" style="margin-top:12px"><label>Position (1 = first)</label><input type="number" id="tilePosInput" min="1" placeholder="e.g. 1" style="width:100%;padding:10px 14px;background:var(--cream);border:1px solid var(--border);border-radius:10px;font-size:14px;font-family:'DM Sans',sans-serif;color:var(--ink);outline:none;"></div>
+    <div class="modal-actions"><button class="btn-cancel" onclick="closeTileModal()">Cancel</button><button class="btn-save" onclick="saveTile()">Save</button></div>
   </div>
 </div>
 
@@ -661,871 +407,134 @@ header { padding:0 16px; height:56px; }
 <div class="modal-overlay" id="shareModal">
   <div class="modal">
     <div class="modal-title">Share this Note</div>
-    <div class="share-card-preview" id="shareCardPreview">
-      <div class="share-card-tag" id="shareCardTag"></div>
-      <div class="share-card-title" id="shareCardTitle"></div>
-      <div class="share-card-body" id="shareCardBody"></div>
-      <div class="share-card-footer">
-        <span>Dad Brain</span>
-        <span id="shareCardDate"></span>
-      </div>
-    </div>
-    <div class="share-actions">
-      <button class="share-btn share-btn-primary" onclick="shareAsText()">📋 Copy Text</button>
-      <button class="share-btn share-btn-secondary" onclick="shareNative()">📤 Share</button>
-    </div>
-    <div style="text-align:center;margin-top:14px">
-      <button class="btn-cancel" onclick="closeShareModal()">Close</button>
-    </div>
-  </div>
-</div>
-
-<!-- QUICK CAPTURE FLOATING BUTTON -->
-
-<button class="quick-capture-btn" id="quickCaptureBtn" onclick="openQuickCapture()" title="Quick capture" style="display:none;">➕</button>
-
-<!-- QUICK CAPTURE MODAL -->
-
-<div class="modal-overlay" id="quickModal">
-  <div class="modal">
-    <div class="modal-title">⚡ Quick Capture</div>
-    <div style="font-size:12px;color:var(--muted);margin-bottom:14px;">Dump the thought. Pick the folder. Done.</div>
-    <div class="form-field">
-      <label>What's on your mind?</label>
-      <textarea id="quickInput" placeholder="Type or tap the mic to speak..." style="height:100px;"></textarea>
-      <button class="voice-btn" id="quickVoiceBtn" onclick="toggleQuickVoice()">
-        <span class="voice-dot"></span>
-        <span id="quickVoiceBtnText">🎤 Tap to dictate</span>
-      </button>
-    </div>
-    <div class="form-field">
-      <label>Save to folder</label>
-      <div class="folder-picker" id="folderPicker"></div>
-    </div>
-    <div class="modal-actions">
-      <button class="btn-cancel" onclick="closeQuickCapture()">Cancel</button>
-      <button class="btn-save" onclick="saveQuickCapture()">Save It ⚡</button>
-    </div>
+    <div class="share-card-preview"><div class="share-card-tag" id="shareCardTag"></div><div class="share-card-title" id="shareCardTitle"></div><div class="share-card-body" id="shareCardBody"></div><div class="share-card-footer"><span>Dad Brain</span><span id="shareCardDate"></span></div></div>
+    <div class="share-actions"><button class="share-btn share-btn-primary" onclick="shareAsText()">📋 Copy Text</button><button class="share-btn share-btn-secondary" onclick="shareNative()">📤 Share</button></div>
+    <div style="text-align:center;margin-top:14px"><button class="btn-cancel" onclick="closeShareModal()">Close</button></div>
   </div>
 </div>
 
 <div class="toast" id="toast"></div>
 
 <script>
-const { createClient } = supabase;
-
-// Safari iOS "Load failed" fix — retry fetch up to 3 times
-const fetchWithRetry = async (url, options={}, retries=3) => {
-  for(let i=0; i<retries; i++){
-    try { return await fetch(url, options); }
-    catch(e){
-      if(i===retries-1) throw e;
-      await new Promise(r=>setTimeout(r, 300*(i+1)));
-    }
-  }
-};
-
-const sb = createClient(
+var supabaseLib = supabase;
+var sb = supabaseLib.createClient(
   'https://afzqplqnhmmqmmpcwuzu.supabase.co',
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFmenFwbHFuaG1tcW1tcGN3dXp1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUzMTY0MDEsImV4cCI6MjA5MDg5MjQwMX0.6pbDySL17i5_gI7V_HvPo_8zlc4WajvQpZ3Kcvl0F5k',
-  { global: { fetch: fetchWithRetry } }
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFmenFwbHFuaG1tcW1tcGN3dXp1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUzMTY0MDEsImV4cCI6MjA5MDg5MjQwMX0.6pbDySL17i5_gI7V_HvPo_8zlc4WajvQpZ3Kcvl0F5k'
 );
 
-const SECTIONS = ['family','gifts','hobbies','reads','goals','movies','tv','restaurants'];
-const ACCENTS  = {family:'#D4860A',gifts:'#C45C26',hobbies:'#6B7F5E',reads:'#7A8FA6',goals:'#9B72CF',movies:'#8B3A8B',tv:'#2A7A9B',restaurants:'#B55A1A'};
-const DEFAULT_TILES = [
-  {id:'family',      emoji:'👨‍👩‍👧', name:'Family',         sub:'notes',    locked:true},
-  {id:'gifts',       emoji:'🎁',     name:'Gift Ideas',     sub:'ideas',    locked:true},
-  {id:'hobbies',     emoji:'🎯',     name:'Hobbies',        sub:'items',    locked:true},
-  {id:'reads',       emoji:'📚',     name:'Things to Read', sub:'saved',    locked:true},
-  {id:'goals',       emoji:'🏆',     name:'Goals',          sub:'goals',    locked:true},
-  {id:'movies',      emoji:'🎬',     name:'Movies',         sub:'to watch', locked:true},
-  {id:'tv',          emoji:'📺',     name:'TV Shows',       sub:'series',   locked:true},
-  {id:'restaurants', emoji:'🍽️',    name:'Restaurants',    sub:'spots',    locked:true},
+var SECTIONS = ['family','gifts','hobbies','reads','goals','movies','tv','restaurants'];
+var ACCENTS = {family:'#D4860A',gifts:'#C45C26',hobbies:'#6B7F5E',reads:'#7A8FA6',goals:'#9B72CF',movies:'#8B3A8B',tv:'#2A7A9B',restaurants:'#B55A1A'};
+var DEFAULT_TILES = [
+  {id:'family',emoji:'👨‍👩‍👧',name:'Family',sub:'notes',locked:true},
+  {id:'gifts',emoji:'🎁',name:'Gift Ideas',sub:'ideas',locked:true},
+  {id:'hobbies',emoji:'🎯',name:'Hobbies',sub:'items',locked:true},
+  {id:'reads',emoji:'📚',name:'Things to Read',sub:'saved',locked:true},
+  {id:'goals',emoji:'🏆',name:'Goals',sub:'goals',locked:true},
+  {id:'movies',emoji:'🎬',name:'Movies',sub:'to watch',locked:true},
+  {id:'tv',emoji:'📺',name:'TV Shows',sub:'series',locked:true},
+  {id:'restaurants',emoji:'🍽️',name:'Restaurants',sub:'spots',locked:true}
 ];
-const THEMES = {
-  warm:  {'--cream':'#F5F0E8','--warm-white':'#FDFAF4','--ink':'#1C1A16','--brown':'#5C3D2E','--card-bg':'#FFFEF9','--border':'rgba(92,61,46,0.12)','--muted':'#9E9589'},
-  white: {'--cream':'#F0F0F0','--warm-white':'#FFFFFF','--ink':'#111111','--brown':'#333333','--card-bg':'#FFFFFF','--border':'rgba(0,0,0,0.09)','--muted':'#888888'},
-  dark:  {'--cream':'#1C1A16','--warm-white':'#242220','--ink':'#F0EAD6','--brown':'#C9A96E','--card-bg':'#2A2720','--border':'rgba(255,255,255,0.08)','--muted':'#7A7060'},
-  slate: {'--cream':'#1E2A38','--warm-white':'#243040','--ink':'#E8F0F8','--brown':'#7AADCF','--card-bg':'#243040','--border':'rgba(255,255,255,0.08)','--muted':'#6A8A9F'},
-  forest:{'--cream':'#1E2E22','--warm-white':'#243028','--ink':'#D8ECD8','--brown':'#7DAF7D','--card-bg':'#243028','--border':'rgba(255,255,255,0.08)','--muted':'#5A7A5A'},
+var THEMES = {
+  warm:{'--cream':'#F5F0E8','--warm-white':'#FDFAF4','--ink':'#1C1A16','--brown':'#5C3D2E','--card-bg':'#FFFEF9','--border':'rgba(92,61,46,0.12)','--muted':'#9E9589'},
+  white:{'--cream':'#F0F0F0','--warm-white':'#FFFFFF','--ink':'#111111','--brown':'#333333','--card-bg':'#FFFFFF','--border':'rgba(0,0,0,0.09)','--muted':'#888888'},
+  dark:{'--cream':'#1C1A16','--warm-white':'#242220','--ink':'#F0EAD6','--brown':'#C9A96E','--card-bg':'#2A2720','--border':'rgba(255,255,255,0.08)','--muted':'#7A7060'},
+  slate:{'--cream':'#1E2A38','--warm-white':'#243040','--ink':'#E8F0F8','--brown':'#7AADCF','--card-bg':'#243040','--border':'rgba(255,255,255,0.08)','--muted':'#6A8A9F'},
+  forest:{'--cream':'#1E2E22','--warm-white':'#243028','--ink':'#D8ECD8','--brown':'#7DAF7D','--card-bg':'#243028','--border':'rgba(255,255,255,0.08)','--muted':'#5A7A5A'}
 };
 
-let currentSection='home', modalSection='', editingItemId=null, editMode=false, editingTileId=null, currentUser=null, dataCache={};
+var currentSection='home',modalSection='',editingItemId=null,editMode=false,editingTileId=null,currentUser=null,dataCache={};
 
-// ── STORAGE ──
-function loadTiles(){
-  try {
-    const saved=JSON.parse(localStorage.getItem('dadsTiles')||'null');
-    if(!saved) return DEFAULT_TILES.map(t=>({...t}));
-    const merged=DEFAULT_TILES.map(def=>{
-      const ex=saved.find(s=>s.id===def.id);
-      return ex?{...ex,name:def.name,locked:true}:{...def};
-    });
-    const custom=saved.filter(s=>!s.locked);
-    return [...merged,...custom];
-  } catch { return DEFAULT_TILES.map(t=>({...t})); }
-}
+function loadTiles(){try{var s=JSON.parse(localStorage.getItem('dadsTiles')||'null');if(!s)return DEFAULT_TILES.map(function(t){var c={};for(var k in t)c[k]=t[k];return c;});var m=DEFAULT_TILES.map(function(d){var e=s.find(function(x){return x.id===d.id;});if(e){var c={};for(var k in e)c[k]=e[k];c.name=d.name;c.locked=true;return c;}var c2={};for(var k2 in d)c2[k2]=d[k2];return c2;});var cu=s.filter(function(x){return!x.locked;});return m.concat(cu);}catch(e){return DEFAULT_TILES.map(function(t){var c={};for(var k in t)c[k]=t[k];return c;});}}
 function saveTiles(t){localStorage.setItem('dadsTiles',JSON.stringify(t));}
-function loadSettings(){try{return JSON.parse(localStorage.getItem('dadsBrainSettings')||'{}')}catch{return{}}}
+function loadSettings(){try{return JSON.parse(localStorage.getItem('dadsBrainSettings')||'{}');}catch(e){return{};}}
 function persistSettings(s){localStorage.setItem('dadsBrainSettings',JSON.stringify(s));}
 
-// ── SUPABASE ──
-async function fetchSection(section){
-  if(!currentUser) return [];
-  const {data,error}=await sb.from('entries').select('*').eq('user_id',currentUser.id).eq('section',section).order('id',{ascending:false});
-  if(error){console.error(error);return[];}
-  dataCache[section]=data||[];
-  return dataCache[section];
-}
-async function fetchAllSections(){
-  if(!currentUser) return;
-  const {data,error}=await sb.from('entries').select('*').eq('user_id',currentUser.id).order('id',{ascending:false});
-  if(error){console.error(error);return;}
-  dataCache={};
-  SECTIONS.forEach(s=>dataCache[s]=[]);
-  (data||[]).forEach(item=>{
-    if(!dataCache[item.section]) dataCache[item.section]=[];
-    dataCache[item.section].push(item);
-  });
-}
+async function fetchSection(section){if(!currentUser)return[];var r=await sb.from('entries').select('*').eq('user_id',currentUser.id).eq('section',section).order('id',{ascending:false});if(r.error){console.error(r.error);return[];}dataCache[section]=r.data||[];return dataCache[section];}
+async function fetchAllSections(){if(!currentUser)return;var r=await sb.from('entries').select('*').eq('user_id',currentUser.id).order('id',{ascending:false});if(r.error){console.error(r.error);return;}dataCache={};SECTIONS.forEach(function(s){dataCache[s]=[];});(r.data||[]).forEach(function(item){if(!dataCache[item.section])dataCache[item.section]=[];dataCache[item.section].push(item);});}
 function getCached(s){return dataCache[s]||[];}
 
-// ── NAV ──
-function switchView(view,btn){
-  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
-  document.getElementById('view-'+view).classList.add('active');
-  currentSection=view;
-  document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active'));
-  if(btn) btn.classList.add('active');
-  if(view==='home'){renderShelf();renderRecent();setDailyPrompt();updateDadScore();checkSmartReminders();}
-  else if(view==='settings') populateSettings();
-  else if(view==='alerts') renderAlerts();
-  else renderSection(view,true);
-}
+function switchView(view,btn){document.querySelectorAll('.view').forEach(function(v){v.classList.remove('active');});document.getElementById('view-'+view).classList.add('active');currentSection=view;document.querySelectorAll('.nav-item').forEach(function(b){b.classList.remove('active');});if(btn)btn.classList.add('active');if(view==='home'){renderShelf();renderRecent();setDailyPrompt();updateDadScore();checkSmartReminders();}else if(view==='settings')populateSettings();else if(view==='alerts')renderAlerts();else renderSection(view,true);}
 
-// ── MODAL ──
-function openModal(section,itemId){
-  modalSection=section; editingItemId=itemId||null;
-  if(itemId){
-    const item=getCached(section).find(i=>i.id===itemId);
-    if(!item) return;
-    document.getElementById('modalTitle').textContent='Edit Entry';
-    document.getElementById('modalSaveBtn').textContent='Save Changes';
-    document.getElementById('inputTitle').value=item.title||'';
-    document.getElementById('inputBody').value=item.body||'';
-    document.getElementById('inputLink').value=item.link||'';
-    document.getElementById('inputReminder').value=item.reminder||'';
-    if(item.alert_time){
-      const dt=new Date(item.alert_time);
-      document.getElementById('inputAlertDate').value=dt.toISOString().split('T')[0];
-      document.getElementById('inputAlertTime').value=dt.toTimeString().slice(0,5);
-    } else {
-      document.getElementById('inputAlertDate').value='';
-      document.getElementById('inputAlertTime').value='';
-    }
-  } else {
-    const titles={family:'Add Family Note',gifts:'Add Gift Idea',hobbies:'Add Hobby',reads:'Save a Link',goals:'Add a Goal',movies:'Add Movie',tv:'Add Show',restaurants:'Add Restaurant'};
-    document.getElementById('modalTitle').textContent=titles[section]||'Add Note';
-    document.getElementById('modalSaveBtn').textContent='Save It';
-    ['inputTitle','inputBody','inputLink','inputReminder','inputAlertDate','inputAlertTime'].forEach(id=>document.getElementById(id).value='');
-  }
-  document.getElementById('modal').classList.add('open');
-  setTimeout(()=>document.getElementById('inputTitle').focus(),100);
-}
+function openModal(section,itemId){modalSection=section;editingItemId=itemId||null;if(itemId){var item=getCached(section).find(function(i){return i.id===itemId;});if(!item)return;document.getElementById('modalTitle').textContent='Edit Entry';document.getElementById('modalSaveBtn').textContent='Save Changes';document.getElementById('inputTitle').value=item.title||'';document.getElementById('inputBody').value=item.body||'';document.getElementById('inputLink').value=item.link||'';document.getElementById('inputReminder').value=item.reminder||'';if(item.alert_time){var dt=new Date(item.alert_time);document.getElementById('inputAlertDate').value=dt.toISOString().split('T')[0];document.getElementById('inputAlertTime').value=dt.toTimeString().slice(0,5);}else{document.getElementById('inputAlertDate').value='';document.getElementById('inputAlertTime').value='';}}else{var titles={family:'Add Family Note',gifts:'Add Gift Idea',hobbies:'Add Hobby',reads:'Save a Link',goals:'Add a Goal',movies:'Add Movie',tv:'Add Show',restaurants:'Add Restaurant'};document.getElementById('modalTitle').textContent=titles[section]||'Add Note';document.getElementById('modalSaveBtn').textContent='Save It';['inputTitle','inputBody','inputLink','inputReminder','inputAlertDate','inputAlertTime'].forEach(function(id){document.getElementById(id).value='';});}document.getElementById('modal').classList.add('open');setTimeout(function(){document.getElementById('inputTitle').focus();},100);}
 function closeModal(){document.getElementById('modal').classList.remove('open');editingItemId=null;}
 
-// ── SAVE ──
-async function saveItem(){
-  const title=document.getElementById('inputTitle').value.trim();
-  if(!title){document.getElementById('inputTitle').style.borderColor='var(--rust)';return;}
-  document.getElementById('inputTitle').style.borderColor='';
-  const alertDate=document.getElementById('inputAlertDate').value;
-  const alertTimeVal=document.getElementById('inputAlertTime').value;
-  const alertTime=(alertDate&&alertTimeVal)?`${alertDate}T${alertTimeVal}`:null;
-  const btn=document.getElementById('modalSaveBtn');
-  btn.innerHTML='<span class="spinner"></span>Saving…'; btn.disabled=true;
-  const payload={
-    user_id:currentUser.id, section:modalSection, title,
-    body:document.getElementById('inputBody').value.trim()||null,
-    link:document.getElementById('inputLink').value.trim()||null,
-    reminder:document.getElementById('inputReminder').value.trim()||null,
-    alert_time:alertTime||null,
-  };
-  let error;
-  if(editingItemId){
-    ({error}=await sb.from('entries').update(payload).eq('id',editingItemId).eq('user_id',currentUser.id));
-  } else {
-    ({error}=await sb.from('entries').insert(payload));
-  }
-  btn.innerHTML='Save It'; btn.disabled=false;
-  if(error){showToast('Error saving — try again');console.error(error);return;}
-  if(alertTime) scheduleAlert({title,reminder:payload.reminder,alertTime});
-  closeModal();
-  await fetchSection(modalSection);
-  renderSection(modalSection);
-  updateBadges(); renderShelf();
-  if(currentSection==='home') renderRecent();
-  showToast(editingItemId?'Entry updated ✓':'Saved ✓');
-  if(!editingItemId) fireConfetti();
-  updateAlertDropBadge(); updateDadScore();
-}
+async function saveItem(){var title=document.getElementById('inputTitle').value.trim();if(!title){document.getElementById('inputTitle').style.borderColor='var(--rust)';return;}document.getElementById('inputTitle').style.borderColor='';var alertDate=document.getElementById('inputAlertDate').value;var alertTimeVal=document.getElementById('inputAlertTime').value;var alertTime=(alertDate&&alertTimeVal)?alertDate+'T'+alertTimeVal:null;var btn=document.getElementById('modalSaveBtn');btn.innerHTML='<span class="spinner"></span>Saving...';btn.disabled=true;var payload={user_id:currentUser.id,section:modalSection,title:title,body:document.getElementById('inputBody').value.trim()||null,link:document.getElementById('inputLink').value.trim()||null,reminder:document.getElementById('inputReminder').value.trim()||null,alert_time:alertTime||null};var result;if(editingItemId){result=await sb.from('entries').update(payload).eq('id',editingItemId).eq('user_id',currentUser.id);}else{result=await sb.from('entries').insert(payload);}btn.innerHTML='Save It';btn.disabled=false;if(result.error){showToast('Error saving — try again');console.error(result.error);return;}if(alertTime)scheduleAlert({title:title,reminder:payload.reminder,alertTime:alertTime});closeModal();await fetchSection(modalSection);renderSection(modalSection);updateBadges();renderShelf();if(currentSection==='home')renderRecent();showToast(editingItemId?'Entry updated ✓':'Saved ✓');if(!editingItemId)fireConfetti();updateAlertDropBadge();updateDadScore();}
 
-// ── DELETE ──
-async function deleteItem(section,itemId){
-  if(!confirm('Delete this entry?')) return;
-  const {error}=await sb.from('entries').delete().eq('id',itemId).eq('user_id',currentUser.id);
-  if(error){showToast('Error deleting');return;}
-  dataCache[section]=(dataCache[section]||[]).filter(i=>i.id!==itemId);
-  renderSection(section); updateBadges(); renderShelf(); showToast('Deleted');
-}
+async function deleteItem(section,itemId){if(!confirm('Delete this entry?'))return;var r=await sb.from('entries').delete().eq('id',itemId).eq('user_id',currentUser.id);if(r.error){showToast('Error deleting');return;}dataCache[section]=(dataCache[section]||[]).filter(function(i){return i.id!==itemId;});renderSection(section);updateBadges();renderShelf();showToast('Deleted');}
 
-// ── RENDER SECTION ──
-async function renderSection(section,forceRefetch){
-  if(section==='home'){renderRecent();return;}
-  if(forceRefetch) await fetchSection(section);
-  const items=getCached(section);
-  const tile=loadTiles().find(t=>t.id===section)||{};
-  const emoji=tile.emoji||'📝';
-  const container=document.getElementById('cards-'+section);
-  if(!container) return;
-  if(!items.length){
-    container.innerHTML=`<div class="empty"><div class="empty-icon">${emoji}</div><div class="empty-title">Nothing here yet</div><div class="empty-sub">Tap the button above to add your first entry.</div></div>`;
-    return;
-  }
-  container.innerHTML=items.map(item=>`
-    <div class="card" style="--card-accent:${ACCENTS[section]||'var(--amber)'}">
-      <div class="card-tag">${(tile.name||section).toUpperCase()}</div>
-      <div class="card-title">${item.title}</div>
-      ${item.body?`<div class="card-body">${item.body}</div>`:''}
-      ${item.link?`<div style="margin-top:8px"><a href="${item.link}" target="_blank" style="font-size:12px;color:var(--amber);word-break:break-all;">🔗 ${item.link}</a></div>`:''}
-      <div class="card-footer">
-        <div class="card-date">${item.created_at?new Date(item.created_at).toLocaleDateString('en-US',{month:'short',day:'numeric'}):''}</div>
-        ${item.reminder?`<span style="font-size:11px;color:var(--sage)">🔔 ${item.reminder}</span>`:''}
-        ${item.alert_time?`<span style="font-size:11px;color:var(--sage)">⏰</span>`:''}
-        <div class="card-actions">
-          <button class="card-btn" onclick="openShareModal('${section}',${item.id})">Share</button>
-          <button class="card-btn" onclick="openModal('${section}',${item.id})">Edit</button>
-          <button class="card-btn del" onclick="deleteItem('${section}',${item.id})">Delete</button>
-        </div>
-      </div>
-    </div>`).join('');
-}
+async function renderSection(section,forceRefetch){if(section==='home'){renderRecent();return;}if(forceRefetch)await fetchSection(section);var items=getCached(section);var tile=loadTiles().find(function(t){return t.id===section;})||{};var emoji=tile.emoji||'📝';var container=document.getElementById('cards-'+section);if(!container)return;if(!items.length){container.innerHTML='<div class="empty"><div class="empty-icon">'+emoji+'</div><div class="empty-title">Nothing here yet</div><div class="empty-sub">Tap the button above to add your first entry.</div></div>';return;}container.innerHTML=items.map(function(item){return'<div class="card" style="--card-accent:'+(ACCENTS[section]||'var(--amber)')+'"><div class="card-tag">'+(tile.name||section).toUpperCase()+'</div><div class="card-title">'+item.title+'</div>'+(item.body?'<div class="card-body">'+item.body+'</div>':'')+(item.link?'<div style="margin-top:8px"><a href="'+item.link+'" target="_blank" style="font-size:12px;color:var(--amber);word-break:break-all;">🔗 '+item.link+'</a></div>':'')+'<div class="card-footer"><div class="card-date">'+(item.created_at?new Date(item.created_at).toLocaleDateString('en-US',{month:'short',day:'numeric'}):'')+'</div>'+(item.reminder?'<span style="font-size:11px;color:var(--sage)">🔔 '+item.reminder+'</span>':'')+(item.alert_time?'<span style="font-size:11px;color:var(--sage)">⏰</span>':'')+'<div class="card-actions"><button class="card-btn" onclick="openShareModal(\''+section+'\','+item.id+')">Share</button><button class="card-btn" onclick="openModal(\''+section+'\','+item.id+')">Edit</button><button class="card-btn del" onclick="deleteItem(\''+section+'\','+item.id+')">Delete</button></div></div></div>';}).join('');}
 
-function renderRecent(){
-  const all=[];
-  SECTIONS.forEach(s=>getCached(s).slice(0,3).forEach(item=>all.push({...item,section:s})));
-  all.sort((a,b)=>b.id-a.id);
-  const container=document.getElementById('recentCards');
-  const recent=all.slice(0,6);
-  if(!recent.length){
-    container.innerHTML=`<div class="empty"><div class="empty-icon">🌱</div><div class="empty-title">Your Brain is Empty</div><div class="empty-sub">Start adding things from any section.</div></div>`;
-    return;
-  }
-  container.innerHTML=recent.map(item=>`
-    <div class="card" style="--card-accent:${ACCENTS[item.section]||'var(--amber)'}">
-      <div class="card-tag">${item.section.toUpperCase()}</div>
-      <div class="card-title">${item.title}</div>
-      ${item.body?`<div class="card-body">${item.body.slice(0,80)}${item.body.length>80?'…':''}</div>`:''}
-      <div class="card-footer">
-        <div class="card-date">${item.created_at?new Date(item.created_at).toLocaleDateString('en-US',{month:'short',day:'numeric'}):''}</div>
-        <div class="card-actions">
-          <button class="card-btn" onclick="openModal('${item.section}',${item.id})">Edit</button>
-          <button class="card-btn" onclick="switchView('${item.section}',null)">See all →</button>
-        </div>
-      </div>
-    </div>`).join('');
-}
+function renderRecent(){var all=[];SECTIONS.forEach(function(s){getCached(s).slice(0,3).forEach(function(item){var c={};for(var k in item)c[k]=item[k];c.section=s;all.push(c);});});all.sort(function(a,b){return b.id-a.id;});var container=document.getElementById('recentCards');var recent=all.slice(0,6);if(!recent.length){container.innerHTML='<div class="empty"><div class="empty-icon">🌱</div><div class="empty-title">Your Brain is Empty</div><div class="empty-sub">Start adding things from any section.</div></div>';return;}container.innerHTML=recent.map(function(item){return'<div class="card" style="--card-accent:'+(ACCENTS[item.section]||'var(--amber)')+'"><div class="card-tag">'+item.section.toUpperCase()+'</div><div class="card-title">'+item.title+'</div>'+(item.body?'<div class="card-body">'+item.body.slice(0,80)+(item.body.length>80?'...':'')+'</div>':'')+'<div class="card-footer"><div class="card-date">'+(item.created_at?new Date(item.created_at).toLocaleDateString('en-US',{month:'short',day:'numeric'}):'')+'</div><div class="card-actions"><button class="card-btn" onclick="openModal(\''+item.section+'\','+item.id+')">Edit</button><button class="card-btn" onclick="switchView(\''+item.section+'\',null)">See all →</button></div></div></div>';}).join('');}
 
-function renderAlerts(){
-  const all=[];
-  SECTIONS.forEach(s=>getCached(s).forEach(item=>{if(item.alert_time) all.push({...item});}));
-  all.sort((a,b)=>new Date(a.alert_time)-new Date(b.alert_time));
-  const container=document.getElementById('alerts-list');
-  if(!all.length){container.innerHTML=`<div class="empty"><div class="empty-icon">🔔</div><div class="empty-title">No alerts set</div><div class="empty-sub">Add a date and time when creating any entry.</div></div>`;return;}
-  const tiles=loadTiles();
-  container.innerHTML=all.map(item=>{
-    const tile=tiles.find(t=>t.id===item.section)||{emoji:'📝',name:item.section};
-    const dt=new Date(item.alert_time);
-    const isPast=dt<new Date();
-    const fmt=dt.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'})+' at '+dt.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
-    return `<div class="card" style="--card-accent:${isPast?'var(--muted)':'var(--sage)'}">
-      <div class="card-tag">${tile.emoji} ${tile.name.toUpperCase()}</div>
-      <div class="card-title">${item.title}</div>
-      <div class="card-footer"><div class="card-date">⏰ ${fmt}</div>
-        <div class="card-actions">
-          <button class="card-btn" onclick="openModal('${item.section}',${item.id})">Edit</button>
-          <button class="card-btn del" onclick="removeAlert('${item.section}',${item.id})">Remove</button>
-        </div>
-      </div></div>`;
-  }).join('');
-}
+function renderAlerts(){var all=[];SECTIONS.forEach(function(s){getCached(s).forEach(function(item){if(item.alert_time){var c={};for(var k in item)c[k]=item[k];all.push(c);}});});all.sort(function(a,b){return new Date(a.alert_time)-new Date(b.alert_time);});var container=document.getElementById('alerts-list');if(!all.length){container.innerHTML='<div class="empty"><div class="empty-icon">🔔</div><div class="empty-title">No alerts set</div><div class="empty-sub">Add a date and time when creating any entry.</div></div>';return;}var tiles=loadTiles();container.innerHTML=all.map(function(item){var tile=tiles.find(function(t){return t.id===item.section;})||{emoji:'📝',name:item.section};var dt=new Date(item.alert_time);var isPast=dt<new Date();var fmt=dt.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'})+' at '+dt.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});return'<div class="card" style="--card-accent:'+(isPast?'var(--muted)':'var(--sage)')+'"><div class="card-tag">'+tile.emoji+' '+tile.name.toUpperCase()+'</div><div class="card-title">'+item.title+'</div><div class="card-footer"><div class="card-date">⏰ '+fmt+'</div><div class="card-actions"><button class="card-btn" onclick="openModal(\''+item.section+'\','+item.id+')">Edit</button><button class="card-btn del" onclick="removeAlert(\''+item.section+'\','+item.id+')">Remove</button></div></div></div>';}).join('');}
 
-async function removeAlert(section,itemId){
-  const {error}=await sb.from('entries').update({alert_time:null}).eq('id',itemId).eq('user_id',currentUser.id);
-  if(error){showToast('Error');return;}
-  await fetchSection(section); renderAlerts(); showToast('Alert removed');
-}
+async function removeAlert(section,itemId){var r=await sb.from('entries').update({alert_time:null}).eq('id',itemId).eq('user_id',currentUser.id);if(r.error){showToast('Error');return;}await fetchSection(section);renderAlerts();showToast('Alert removed');}
 
-// ── SHELF ──
-function renderShelf(){
-  const tiles=loadTiles();
-  let banner=document.getElementById('editModeBanner');
-  if(editMode){
-    if(!banner){
-      banner=document.createElement('div'); banner.id='editModeBanner';
-      banner.style.cssText='background:var(--brown);color:#FFFEF9;border-radius:12px;padding:12px 18px;display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;font-size:14px;font-weight:500;';
-      banner.innerHTML='<span>✏️ Hold & drag to reorder</span><button onclick="toggleEditMode()" style="background:#FFFEF9;color:var(--brown);border:none;border-radius:8px;padding:7px 16px;font-size:13px;font-weight:600;cursor:pointer;font-family:\'DM Sans\',sans-serif;">✅ Save & Done</button>';
-      document.getElementById('quickShelf').before(banner);
-    }
-  } else { if(banner) banner.remove(); }
-  let html=tiles.map(t=>`
-    <div class="shelf-tile${editMode?' edit-mode':''}" data-id="${t.id}" ${!editMode?`onclick="switchView('${t.id}',null)"`:''} style="position:relative">
-      ${editMode?`<button class="tile-edit-btn" onclick="openTileEditor('${t.id}')" style="right:28px">✏️</button><button class="tile-edit-btn" onclick="deleteTile('${t.id}')" style="background:var(--rust);right:4px">✕</button>`:''}
-      <span class="tile-emoji">${t.emoji}</span>
-      <div class="tile-name">${t.name}</div>
-      <div class="tile-count">${getCached(t.id).length} ${t.sub}</div>
-    </div>`).join('');
-  if(editMode) html+=`<div class="shelf-tile add-tile-btn" onclick="addNewTile()" style="border:2px dashed var(--border);opacity:0.7;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px"><span style="font-size:28px">＋</span><div class="tile-name">Add Folder</div></div>`;
-  const shelf=document.getElementById('quickShelf');
-  shelf.innerHTML=html;
-  if(window._shelfSortable){window._shelfSortable.destroy();window._shelfSortable=null;}
-  if(editMode&&typeof Sortable!=='undefined'){
-    window._shelfSortable=Sortable.create(shelf,{
-      animation:150,delay:200,delayOnTouchOnly:true,
-      ghostClass:'sortable-ghost',chosenClass:'sortable-chosen',filter:'.add-tile-btn',
-      onEnd:function(){
-        const newOrder=[...shelf.querySelectorAll('[data-id]')].map(el=>el.dataset.id);
-        const tiles=loadTiles();
-        const reordered=newOrder.map(id=>tiles.find(t=>t.id===id)).filter(Boolean);
-        saveTiles(reordered); showToast('Order saved ✓');
-      }
-    });
-  }
-}
+function renderShelf(){var tiles=loadTiles();var banner=document.getElementById('editModeBanner');if(editMode){if(!banner){banner=document.createElement('div');banner.id='editModeBanner';banner.style.cssText='background:var(--brown);color:#FFFEF9;border-radius:12px;padding:12px 18px;display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;font-size:14px;font-weight:500;';banner.innerHTML='<span>✏️ Hold & drag to reorder</span><button onclick="toggleEditMode()" style="background:#FFFEF9;color:var(--brown);border:none;border-radius:8px;padding:7px 16px;font-size:13px;font-weight:600;cursor:pointer;">✅ Save & Done</button>';document.getElementById('quickShelf').before(banner);}}else{if(banner)banner.remove();}var html=tiles.map(function(t){return'<div class="shelf-tile'+(editMode?' edit-mode':'')+'" data-id="'+t.id+'" '+(!editMode?'onclick="switchView(\''+t.id+'\',null)"':'')+' style="position:relative">'+(editMode?'<button class="tile-edit-btn" onclick="openTileEditor(\''+t.id+'\')" style="right:28px">✏️</button><button class="tile-edit-btn" onclick="deleteTile(\''+t.id+'\')" style="background:var(--rust);right:4px">✕</button>':'')+'<span class="tile-emoji">'+t.emoji+'</span><div class="tile-name">'+t.name+'</div><div class="tile-count">'+getCached(t.id).length+' '+t.sub+'</div></div>';}).join('');if(editMode)html+='<div class="shelf-tile" onclick="addNewTile()" style="border:2px dashed var(--border);opacity:0.7;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px"><span style="font-size:28px">＋</span><div class="tile-name">Add Folder</div></div>';var shelf=document.getElementById('quickShelf');shelf.innerHTML=html;if(window._shelfSortable){window._shelfSortable.destroy();window._shelfSortable=null;}if(editMode&&typeof Sortable!=='undefined'){window._shelfSortable=Sortable.create(shelf,{animation:150,delay:200,delayOnTouchOnly:true,ghostClass:'sortable-ghost',chosenClass:'sortable-chosen',onEnd:function(){var els=shelf.querySelectorAll('[data-id]');var newOrder=[];for(var i=0;i<els.length;i++)newOrder.push(els[i].dataset.id);var cur=loadTiles();var reordered=newOrder.map(function(id){return cur.find(function(t){return t.id===id;});}).filter(Boolean);saveTiles(reordered);showToast('Order saved ✓');}});}}
 
-function updateBadges(){
-  SECTIONS.forEach(s=>{const el=document.getElementById('badge-'+s);if(el) el.textContent=getCached(s).length;});
-  let ac=0; SECTIONS.forEach(s=>getCached(s).forEach(i=>{if(i.alert_time)ac++;}));
-  const ab=document.getElementById('badge-alerts'); if(ab) ab.textContent=ac;
-}
-function toggleEditMode(){ editMode=!editMode; renderShelf(); }
-
-function addNewTile(){
-  const tiles=loadTiles(), newId='tile_'+Date.now();
-  tiles.push({id:newId,emoji:'📌',name:'New Folder',sub:'items'});
-  saveTiles(tiles); ensureTileView(newId); renderShelf(); openTileEditor(newId);
-}
-function ensureTileView(id){
-  if(document.getElementById('view-'+id)) return;
-  const div=document.createElement('div'); div.className='view'; div.id='view-'+id;
-  div.innerHTML=`<button class="btn-back" onclick="switchView('home',null)">← Home</button><div class="page-header"><div><div class="page-title">📌 New Folder</div><div class="page-subtitle">Your custom folder</div></div><button class="btn-add" onclick="openModal('${id}')">+ Add Entry</button></div><div class="cards-grid" id="cards-${id}"></div>`;
-  document.querySelector('.main').appendChild(div);
-}
-function deleteTile(id){
-  const tile=loadTiles().find(t=>t.id===id);
-  if(tile&&tile.locked){showToast('Core folders cannot be deleted');return;}
-  if(!confirm('Delete this folder?')) return;
-  saveTiles(loadTiles().filter(t=>t.id!==id));
-  sb.from('entries').delete().eq('section',id).eq('user_id',currentUser.id);
-  delete dataCache[id]; editMode=false; renderShelf(); showToast('Folder deleted');
-}
-function openTileEditor(id){
-  editingTileId=id;
-  const tiles=loadTiles(), tile=tiles.find(t=>t.id===id), isLocked=tile.locked===true;
-  document.getElementById('tileEmojiInput').value=tile.emoji;
-  document.getElementById('tileNameInput').value=tile.name;
-  document.getElementById('tileNameInput').disabled=isLocked;
-  document.getElementById('tileNameInput').style.opacity=isLocked?'0.45':'1';
-  document.getElementById('tilePosInput').value=tiles.findIndex(t=>t.id===id)+1;
-  const ln=document.getElementById('tileNameLock'); if(ln) ln.style.display=isLocked?'block':'none';
-  document.getElementById('tileModal').classList.add('open');
-}
+function updateBadges(){SECTIONS.forEach(function(s){var el=document.getElementById('badge-'+s);if(el)el.textContent=getCached(s).length;});var ac=0;SECTIONS.forEach(function(s){getCached(s).forEach(function(i){if(i.alert_time)ac++;});});var ab=document.getElementById('badge-alerts');if(ab)ab.textContent=ac;}
+function toggleEditMode(){editMode=!editMode;renderShelf();}
+function addNewTile(){var tiles=loadTiles(),newId='tile_'+Date.now();tiles.push({id:newId,emoji:'📌',name:'New Folder',sub:'items'});saveTiles(tiles);ensureTileView(newId);renderShelf();openTileEditor(newId);}
+function ensureTileView(id){if(document.getElementById('view-'+id))return;var div=document.createElement('div');div.className='view';div.id='view-'+id;div.innerHTML='<button class="btn-back" onclick="switchView(\'home\',null)">← Home</button><div class="page-header"><div><div class="page-title">📌 New Folder</div><div class="page-subtitle">Your custom folder</div></div><button class="btn-add" onclick="openModal(\''+id+'\')">+ Add Entry</button></div><div class="cards-grid" id="cards-'+id+'"></div>';document.querySelector('.main').appendChild(div);}
+function deleteTile(id){var tile=loadTiles().find(function(t){return t.id===id;});if(tile&&tile.locked){showToast('Core folders cannot be deleted');return;}if(!confirm('Delete this folder?'))return;saveTiles(loadTiles().filter(function(t){return t.id!==id;}));sb.from('entries').delete().eq('section',id).eq('user_id',currentUser.id);delete dataCache[id];editMode=false;renderShelf();showToast('Folder deleted');}
+function openTileEditor(id){editingTileId=id;var tiles=loadTiles(),tile=tiles.find(function(t){return t.id===id;}),isLocked=tile.locked===true;document.getElementById('tileEmojiInput').value=tile.emoji;document.getElementById('tileNameInput').value=tile.name;document.getElementById('tileNameInput').disabled=isLocked;document.getElementById('tileNameInput').style.opacity=isLocked?'0.45':'1';document.getElementById('tilePosInput').value=tiles.findIndex(function(t){return t.id===id;})+1;var ln=document.getElementById('tileNameLock');if(ln)ln.style.display=isLocked?'block':'none';document.getElementById('tileModal').classList.add('open');}
 function closeTileModal(){document.getElementById('tileModal').classList.remove('open');editingTileId=null;}
-function saveTile(){
-  const tiles=loadTiles(), idx=tiles.findIndex(t=>t.id===editingTileId), tile=tiles[idx];
-  tile.emoji=document.getElementById('tileEmojiInput').value.trim()||tile.emoji;
-  if(!tile.locked) tile.name=document.getElementById('tileNameInput').value.trim()||tile.name;
-  const pos=parseInt(document.getElementById('tilePosInput').value);
-  if(!isNaN(pos)&&pos>=1){const ni=Math.min(pos-1,tiles.length-1);tiles.splice(idx,1);tiles.splice(ni,0,tile);}
-  saveTiles(tiles); closeTileModal(); renderShelf(); showToast('Folder updated ✓');
-}
+function saveTile(){var tiles=loadTiles(),idx=tiles.findIndex(function(t){return t.id===editingTileId;}),tile=tiles[idx];tile.emoji=document.getElementById('tileEmojiInput').value.trim()||tile.emoji;if(!tile.locked)tile.name=document.getElementById('tileNameInput').value.trim()||tile.name;var pos=parseInt(document.getElementById('tilePosInput').value);if(!isNaN(pos)&&pos>=1){var ni=Math.min(pos-1,tiles.length-1);tiles.splice(idx,1);tiles.splice(ni,0,tile);}saveTiles(tiles);closeTileModal();renderShelf();showToast('Folder updated ✓');}
 
-// ── ALERTS ──
-function scheduleAlert(item){
-  if(!item.alertTime) return;
-  const ms=new Date(item.alertTime).getTime()-Date.now();
-  if(ms<=0){showToast('Alert time is in the past');return;}
-  if('Notification' in window){
-    Notification.requestPermission().then(p=>{
-      if(p==='granted'){setTimeout(()=>new Notification('Dad Brain 🧠',{body:item.title+(item.reminder?' — '+item.reminder:'')}),ms);showToast('Alert set ✓');}
-      else showToast('Allow notifications for alerts');
-    });
-  }
-}
+function scheduleAlert(item){if(!item.alertTime)return;var ms=new Date(item.alertTime).getTime()-Date.now();if(ms<=0){showToast('Alert time is in the past');return;}if('Notification' in window){Notification.requestPermission().then(function(p){if(p==='granted'){setTimeout(function(){new Notification('Dad Brain 🧠',{body:item.title+(item.reminder?' — '+item.reminder:'')});},ms);showToast('Alert set ✓');}else showToast('Allow notifications for alerts');});}}
 
-// ── SETTINGS ──
-function populateSettings(){
-  const s=loadSettings();
-  document.getElementById('s-userName').value=s.userName||'';
-  document.getElementById('s-tagline').value=s.tagline||'';
-  const accent=s.accentColor||'#D4860A';
-  document.getElementById('s-accentColor').value=accent;
-  document.getElementById('s-accentHex').value=accent;
-  document.querySelectorAll('.theme-swatch').forEach(sw=>sw.classList.toggle('active',sw.dataset.theme===(s.theme||'warm')));
-  document.getElementById('folderSettingsList').innerHTML=loadTiles().map(t=>`
-    <div class="folder-setting-row">
-      <input class="folder-emoji-in" type="text" maxlength="2" value="${t.emoji}" data-id="${t.id}" data-field="emoji">
-      <input class="folder-name-in" type="text" value="${t.name}" data-id="${t.id}" data-field="name" placeholder="Folder name" ${t.locked?'disabled style="opacity:0.5"':''}>
-    </div>`).join('');
-  document.getElementById('s-accentColor').oninput=e=>document.getElementById('s-accentHex').value=e.target.value;
-  document.getElementById('s-accentHex').oninput=e=>{if(/^#[0-9a-f]{6}$/i.test(e.target.value))document.getElementById('s-accentColor').value=e.target.value;};
-  document.querySelectorAll('.theme-swatch').forEach(sw=>{sw.onclick=()=>{document.querySelectorAll('.theme-swatch').forEach(s=>s.classList.remove('active'));sw.classList.add('active');};});
-}
-function saveSettings(){
-  const s=loadSettings();
-  s.appName='Dad Brain';
-  s.userName=document.getElementById('s-userName').value.trim();
-  s.tagline=document.getElementById('s-tagline').value.trim();
-  s.accentColor=document.getElementById('s-accentColor').value;
-  s.theme=document.querySelector('.theme-swatch.active')?.dataset.theme||'warm';
-  const tiles=loadTiles();
-  document.querySelectorAll('.folder-setting-row').forEach(row=>{
-    const ei=row.querySelector('[data-field="emoji"]'), ni=row.querySelector('[data-field="name"]');
-    if(!ei) return;
-    const tile=tiles.find(t=>t.id===ei.dataset.id);
-    if(tile){tile.emoji=ei.value.trim()||tile.emoji; if(!tile.locked) tile.name=ni.value.trim()||tile.name;}
-  });
-  saveTiles(tiles); persistSettings(s); applySettings(s); renderShelf(); showToast('Settings saved ✓');
-}
-function applySettings(s){
-  if(s.theme&&THEMES[s.theme]) Object.entries(THEMES[s.theme]).forEach(([k,v])=>document.documentElement.style.setProperty(k,v));
-  if(s.accentColor) document.documentElement.style.setProperty('--amber',s.accentColor);
-  if(s.userName){const hr=new Date().getHours(),px=hr<12?'Good morning':hr<17?'Hey':'Evening',el=document.getElementById('greeting');if(el)el.textContent=`${px}, ${s.userName} 👋`;}
-  if(s.tagline){const el=document.getElementById('homeTagline');if(el)el.textContent=s.tagline;}
-}
-async function clearAllData(){
-  if(!confirm('Delete ALL notes? Cannot be undone.')) return;
-  await sb.from('entries').delete().eq('user_id',currentUser.id);
-  dataCache={}; renderShelf(); renderRecent(); updateBadges(); showToast('All data cleared');
-}
+function populateSettings(){var s=loadSettings();document.getElementById('s-userName').value=s.userName||'';document.getElementById('s-tagline').value=s.tagline||'';var accent=s.accentColor||'#D4860A';document.getElementById('s-accentColor').value=accent;document.getElementById('s-accentHex').value=accent;document.querySelectorAll('.theme-swatch').forEach(function(sw){sw.classList.toggle('active',sw.dataset.theme===(s.theme||'warm'));});document.getElementById('folderSettingsList').innerHTML=loadTiles().map(function(t){return'<div class="folder-setting-row"><input class="folder-emoji-in" type="text" maxlength="2" value="'+t.emoji+'" data-id="'+t.id+'" data-field="emoji"><input class="folder-name-in" type="text" value="'+t.name+'" data-id="'+t.id+'" data-field="name" placeholder="Folder name" '+(t.locked?'disabled style="opacity:0.5"':'')+'></div>';}).join('');document.getElementById('s-accentColor').oninput=function(e){document.getElementById('s-accentHex').value=e.target.value;};document.getElementById('s-accentHex').oninput=function(e){if(/^#[0-9a-f]{6}$/i.test(e.target.value))document.getElementById('s-accentColor').value=e.target.value;};document.querySelectorAll('.theme-swatch').forEach(function(sw){sw.onclick=function(){document.querySelectorAll('.theme-swatch').forEach(function(s){s.classList.remove('active');});sw.classList.add('active');};});}
+function saveSettings(){var s=loadSettings();s.appName='Dad Brain';s.userName=document.getElementById('s-userName').value.trim();s.tagline=document.getElementById('s-tagline').value.trim();s.accentColor=document.getElementById('s-accentColor').value;var act=document.querySelector('.theme-swatch.active');s.theme=act?act.dataset.theme:'warm';var tiles=loadTiles();document.querySelectorAll('.folder-setting-row').forEach(function(row){var ei=row.querySelector('[data-field="emoji"]'),ni=row.querySelector('[data-field="name"]');if(!ei)return;var tile=tiles.find(function(t){return t.id===ei.dataset.id;});if(tile){tile.emoji=ei.value.trim()||tile.emoji;if(!tile.locked)tile.name=ni.value.trim()||tile.name;}});saveTiles(tiles);persistSettings(s);applySettings(s);renderShelf();showToast('Settings saved ✓');}
+function applySettings(s){if(s.theme&&THEMES[s.theme]){var keys=Object.keys(THEMES[s.theme]);for(var i=0;i<keys.length;i++)document.documentElement.style.setProperty(keys[i],THEMES[s.theme][keys[i]]);}if(s.accentColor)document.documentElement.style.setProperty('--amber',s.accentColor);if(s.userName){var hr=new Date().getHours(),px=hr<12?'Good morning':hr<17?'Hey':'Evening',el=document.getElementById('greeting');if(el)el.textContent=px+', '+s.userName+' 👋';}if(s.tagline){var el2=document.getElementById('homeTagline');if(el2)el2.textContent=s.tagline;}}
+async function clearAllData(){if(!confirm('Delete ALL notes? Cannot be undone.'))return;await sb.from('entries').delete().eq('user_id',currentUser.id);dataCache={};renderShelf();renderRecent();updateBadges();showToast('All data cleared');}
 
-// ── DAD SCORE ──
-function updateDadScore(){
-  const oneWeekAgo=Date.now()-7*24*60*60*1000;
-  let weekCount=0, totalCount=0;
-  SECTIONS.forEach(s=>(dataCache[s]||[]).forEach(item=>{
-    totalCount++;
-    if(new Date(item.created_at).getTime()>=oneWeekAgo) weekCount++;
-  }));
-  const scoreEl=document.getElementById('dadScoreNumber');
-  const labelEl=document.getElementById('dadScoreLabel');
-  const rankEl=document.getElementById('dadScoreRank');
-  if(!scoreEl) return;
-  scoreEl.textContent=weekCount;
-  labelEl.textContent=weekCount===1?'note this week':'notes this week';
-  if(weekCount===0)      rankEl.textContent='Start logging to get your score';
-  else if(weekCount<3)  rankEl.textContent='🌱 Getting started!';
-  else if(weekCount<7)  rankEl.textContent='🔥 Top 25% of dads';
-  else if(weekCount<14) rankEl.textContent='⚡ Top 10% — dialed in';
-  else                  rankEl.textContent='🏆 Elite Dad — unstoppable';
-  checkMilestones(totalCount);
-}
+function updateDadScore(){var oneWeekAgo=Date.now()-7*24*60*60*1000;var weekCount=0,totalCount=0;SECTIONS.forEach(function(s){(dataCache[s]||[]).forEach(function(item){totalCount++;if(new Date(item.created_at).getTime()>=oneWeekAgo)weekCount++;});});var scoreEl=document.getElementById('dadScoreNumber');var labelEl=document.getElementById('dadScoreLabel');var rankEl=document.getElementById('dadScoreRank');if(!scoreEl)return;scoreEl.textContent=weekCount;labelEl.textContent=weekCount===1?'note this week':'notes this week';if(weekCount===0)rankEl.textContent='Start logging to get your score';else if(weekCount<3)rankEl.textContent='🌱 Getting started!';else if(weekCount<7)rankEl.textContent='🔥 Top 25% of dads';else if(weekCount<14)rankEl.textContent='⚡ Top 10% — dialed in';else rankEl.textContent='🏆 Elite Dad — unstoppable';checkMilestones(totalCount);}
 
-// ── MILESTONES ──
-const MILESTONES=[
-  {count:1,  emoji:'🌱',title:'First note saved!',      body:'Every great dad brain starts with one thought.'},
-  {count:10, emoji:'🔥',title:'10 notes logged!',       body:"You're building a real habit."},
-  {count:25, emoji:'⚡',title:'25 notes — on a roll!',  body:'Your brain is getting sharper every day.'},
-  {count:50, emoji:'🏅',title:'50 notes saved!',        body:'Top tier of intentional dads right here.'},
-  {count:100,emoji:'🏆',title:'100 notes — legendary!', body:'Dad Brain is officially part of your life.'},
-];
-function checkMilestones(totalCount){
-  const reached=JSON.parse(localStorage.getItem('dbMilestones')||'[]');
-  const next=MILESTONES.find(m=>m.count<=totalCount&&!reached.includes(m.count));
-  if(!next) return;
-  reached.push(next.count); localStorage.setItem('dbMilestones',JSON.stringify(reached));
-  document.getElementById('milestoneEmoji').textContent=next.emoji;
-  document.getElementById('milestoneTitle').textContent=next.title;
-  document.getElementById('milestoneBody').textContent=next.body;
-  document.getElementById('milestoneBanner').style.display='flex';
-  fireMilestone();
-}
-function fireMilestone(){
-  if(typeof confetti==='undefined') return;
-  const end=Date.now()+2500;
-  const frame=()=>{
-    confetti({particleCount:6,angle:60, spread:55,origin:{x:0},colors:['#D4860A','#F2C14E','#FFFEF9']});
-    confetti({particleCount:6,angle:120,spread:55,origin:{x:1},colors:['#5C3D2E','#C45C26','#6B7F5E']});
-    if(Date.now()<end) requestAnimationFrame(frame);
-  };
-  frame();
-}
+var MILESTONES=[{count:1,emoji:'🌱',title:'First note saved!',body:'Every great dad brain starts with one thought.'},{count:10,emoji:'🔥',title:'10 notes logged!',body:'You are building a real habit.'},{count:25,emoji:'⚡',title:'25 notes — on a roll!',body:'Your brain is getting sharper every day.'},{count:50,emoji:'🏅',title:'50 notes saved!',body:'Top tier of intentional dads right here.'},{count:100,emoji:'🏆',title:'100 notes — legendary!',body:'Dad Brain is officially part of your life.'}];
+function checkMilestones(totalCount){var reached=JSON.parse(localStorage.getItem('dbMilestones')||'[]');var next=MILESTONES.find(function(m){return m.count<=totalCount&&reached.indexOf(m.count)===-1;});if(!next)return;reached.push(next.count);localStorage.setItem('dbMilestones',JSON.stringify(reached));document.getElementById('milestoneEmoji').textContent=next.emoji;document.getElementById('milestoneTitle').textContent=next.title;document.getElementById('milestoneBody').textContent=next.body;document.getElementById('milestoneBanner').style.display='flex';fireMilestone();}
+function fireMilestone(){if(typeof confetti==='undefined')return;var end=Date.now()+2500;var frame=function(){confetti({particleCount:6,angle:60,spread:55,origin:{x:0},colors:['#D4860A','#F2C14E','#FFFEF9']});confetti({particleCount:6,angle:120,spread:55,origin:{x:1},colors:['#5C3D2E','#C45C26','#6B7F5E']});if(Date.now()<end)requestAnimationFrame(frame);};frame();}
 
-// ── DAILY PROMPT ──
-const DAD_PROMPTS=[
-  "What's one thing your kid did this week that made you smile?",
-  "What's a gift idea you've been meaning to write down?",
-  "What hobby have you been neglecting that you miss?",
-  "What's one goal you want to hit before end of month?",
-  "What restaurant do you want to take the family to next?",
-  "What's something your partner did recently worth appreciating?",
-  "What movie have you been meaning to watch for ages?",
-  "What's one thing you want to remember about this season of life?",
-  "What's a book or article you've been meaning to read?",
-  "What's your biggest win this week as a dad?",
-  "What do you want to teach your kid this year?",
-  "What's one small thing you can do tomorrow to be more present?",
-  "What's a memory from this week worth keeping forever?",
-  "What's stressing you out that you should write down and release?",
-  "What's one thing your kid is really into right now?",
-];
-function setDailyPrompt(){
-  const el=document.getElementById('dailyPromptText'); if(!el) return;
-  el.textContent=DAD_PROMPTS[Math.floor(Date.now()/86400000)%DAD_PROMPTS.length];
-}
-function logDailyPrompt(){
-  const prompt=document.getElementById('dailyPromptText')?.textContent; if(!prompt) return;
-  modalSection='goals'; editingItemId=null;
-  document.getElementById('modalTitle').textContent='💭 Daily Prompt';
-  document.getElementById('modalSaveBtn').textContent='Save It';
-  ['inputTitle','inputBody','inputLink','inputReminder','inputAlertDate','inputAlertTime'].forEach(id=>document.getElementById(id).value='');
-  document.getElementById('inputTitle').value=prompt;
-  document.getElementById('modal').classList.add('open');
-  setTimeout(()=>document.getElementById('inputBody').focus(),100);
-}
+var DAD_PROMPTS=["What's one thing your kid did this week that made you smile?","What's a gift idea you've been meaning to write down?","What hobby have you been neglecting that you miss?","What's one goal you want to hit before end of month?","What restaurant do you want to take the family to next?","What's something your partner did recently worth appreciating?","What movie have you been meaning to watch for ages?","What's one thing you want to remember about this season of life?","What's a book or article you've been meaning to read?","What's your biggest win this week as a dad?","What do you want to teach your kid this year?","What's one small thing you can do tomorrow to be more present?","What's a memory from this week worth keeping forever?","What's stressing you out that you should write down and release?","What's one thing your kid is really into right now?"];
+function setDailyPrompt(){var el=document.getElementById('dailyPromptText');if(!el)return;el.textContent=DAD_PROMPTS[Math.floor(Date.now()/86400000)%DAD_PROMPTS.length];}
+function logDailyPrompt(){var prompt=document.getElementById('dailyPromptText');if(!prompt||!prompt.textContent)return;modalSection='goals';editingItemId=null;document.getElementById('modalTitle').textContent='💭 Daily Prompt';document.getElementById('modalSaveBtn').textContent='Save It';['inputTitle','inputBody','inputLink','inputReminder','inputAlertDate','inputAlertTime'].forEach(function(id){document.getElementById(id).value='';});document.getElementById('inputTitle').value=prompt.textContent;document.getElementById('modal').classList.add('open');setTimeout(function(){document.getElementById('inputBody').focus();},100);}
 
-// ── QUICK CAPTURE ──
-let selectedQuickFolder = 'family';
-function openQuickCapture(){
-  const tiles = loadTiles();
-  document.getElementById('quickInput').value = '';
-  selectedQuickFolder = tiles[0]?.id || 'family';
-  document.getElementById('folderPicker').innerHTML = tiles.map(t=>`
-    <button class="folder-pick-btn${t.id===selectedQuickFolder?' selected':''}" onclick="selectFolder('${t.id}',this)">
-      ${t.emoji} ${t.name}
-    </button>`).join('');
-  document.getElementById('quickModal').classList.add('open');
-  setTimeout(()=>document.getElementById('quickInput').focus(),100);
-}
-function closeQuickCapture(){ document.getElementById('quickModal').classList.remove('open'); stopVoice(); }
-function selectFolder(id, btn){
-  selectedQuickFolder = id;
-  document.querySelectorAll('.folder-pick-btn').forEach(b=>b.classList.remove('selected'));
-  btn.classList.add('selected');
-}
-async function saveQuickCapture(){
-  const text = document.getElementById('quickInput').value.trim();
-  if(!text){ document.getElementById('quickInput').style.borderColor='var(--rust)'; return; }
-  document.getElementById('quickInput').style.borderColor='';
-  const payload = { user_id:currentUser.id, section:selectedQuickFolder, title:text, body:null, link:null, reminder:null, alert_time:null };
-  const {error} = await sb.from('entries').insert(payload);
-  if(error){ showToast('Error saving'); return; }
-  closeQuickCapture();
-  await fetchSection(selectedQuickFolder);
-  renderSection(selectedQuickFolder);
-  updateBadges(); renderShelf();
-  if(currentSection==='home') renderRecent();
-  showToast('Captured ✓'); fireConfetti(); updateDadScore();
-}
+var recognition=null,isRecording=false;
+function initSpeechRecognition(){var SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SR)return null;var r=new SR();r.continuous=false;r.interimResults=false;r.lang='en-US';r.onresult=function(e){var t=e.results[0][0].transcript;var el=document.getElementById('inputBody');el.value=(el.value?el.value+' ':'')+t;stopVoice();};r.onerror=function(){stopVoice();};r.onend=function(){stopVoice();};return r;}
+function toggleVoice(){if(isRecording){stopVoice();return;}var SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SR){showToast('Voice not supported on this browser');return;}recognition=initSpeechRecognition();recognition.start();isRecording=true;document.getElementById('voiceBtn').classList.add('recording');document.getElementById('voiceBtnText').textContent='⏹ Recording… tap to stop';}
+function stopVoice(){if(recognition){try{recognition.stop();}catch(e){}recognition=null;}isRecording=false;var vb=document.getElementById('voiceBtn');if(vb){vb.classList.remove('recording');document.getElementById('voiceBtnText').textContent='🎤 Tap to dictate a note';}}
 
-// ── VOICE TO TEXT ──
-let recognition = null;
-let isRecording = false;
-let voiceTarget = 'modal'; // 'modal' or 'quick'
+function checkSmartReminders(){var container=document.getElementById('smartReminders');if(!container)return;var reminders=[];var now=new Date();SECTIONS.forEach(function(s){getCached(s).forEach(function(item){if(!item.alert_time)return;var alertDt=new Date(item.alert_time);var hoursUntil=(alertDt-now)/3600000;if(hoursUntil>0&&hoursUntil<=48)reminders.push({icon:'⏰',title:'Upcoming: '+item.title,body:'Alert in '+(hoursUntil<1?'less than an hour':Math.round(hoursUntil)+' hours'),action:'View Alerts',fn:"switchView('alerts',null)"});});});var gifts=getCached('gifts');if(gifts.length>0){var oldest=gifts[gifts.length-1];var daysSince=Math.floor((now-new Date(oldest.created_at))/86400000);if(daysSince>=30)reminders.push({icon:'🎁',title:'Gift idea check-in',body:'You saved "'+oldest.title+'" '+daysSince+' days ago. Still relevant?',action:'Review',fn:"switchView('gifts',null)"});}var oneWeekAgo=Date.now()-7*24*60*60*1000;var weekCount=0;SECTIONS.forEach(function(s){getCached(s).forEach(function(i){if(new Date(i.created_at).getTime()>=oneWeekAgo)weekCount++;});});if(weekCount===0){var hasData=false;for(var k in dataCache){if(dataCache[k]&&dataCache[k].length>0){hasData=true;break;}}if(hasData)reminders.push({icon:'🧠',title:"Your brain's been quiet",body:"Nothing logged this week. What's on your mind?",action:'Add Note',fn:"openModal('family')"});}if(!reminders.length){container.style.display='none';return;}container.style.display='block';container.innerHTML='<div style="font-family:\'Playfair Display\',serif;font-size:14px;font-weight:600;color:var(--brown);margin-bottom:10px;">💡 Smart Reminders</div>'+reminders.slice(0,2).map(function(r){return'<div class="smart-reminder"><div style="font-size:22px;flex-shrink:0">'+r.icon+'</div><div class="smart-reminder-text"><strong>'+r.title+'</strong>'+r.body+'</div><button class="smart-reminder-action" onclick="'+r.fn+';this.closest(\'.smart-reminder\').remove()">'+r.action+'</button></div>';}).join('');}
 
-function initSpeechRecognition(){
-  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-  if(!SR) return null;
-  const r = new SR();
-  r.continuous = false;
-  r.interimResults = false;
-  r.lang = 'en-US';
-  r.onresult = (e) => {
-    const transcript = e.results[0][0].transcript;
-    if(voiceTarget === 'modal'){
-      const el = document.getElementById('inputBody');
-      el.value = (el.value ? el.value + ' ' : '') + transcript;
-    } else {
-      const el = document.getElementById('quickInput');
-      el.value = (el.value ? el.value + ' ' : '') + transcript;
-    }
-    stopVoice();
-  };
-  r.onerror = () => stopVoice();
-  r.onend = () => stopVoice();
-  return r;
-}
+var shareItem=null;
+function openShareModal(section,itemId){shareItem=getCached(section).find(function(i){return i.id===itemId;});if(!shareItem)return;var tile=loadTiles().find(function(t){return t.id===section;})||{name:section};document.getElementById('shareCardTag').textContent=tile.name.toUpperCase();document.getElementById('shareCardTitle').textContent=shareItem.title;document.getElementById('shareCardBody').textContent=shareItem.body||'';document.getElementById('shareCardDate').textContent=shareItem.created_at?new Date(shareItem.created_at).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}):'';document.getElementById('shareModal').classList.add('open');}
+function closeShareModal(){document.getElementById('shareModal').classList.remove('open');shareItem=null;}
+function shareAsText(){if(!shareItem)return;var tile=loadTiles().find(function(t){return t.id===shareItem.section;})||{name:shareItem.section};var text='📌 '+tile.name.toUpperCase()+'\n\n'+shareItem.title+(shareItem.body?'\n\n'+shareItem.body:'')+'\n\n— Dad Brain';navigator.clipboard.writeText(text).then(function(){showToast('Copied ✓');}).catch(function(){showToast('Copy failed');});closeShareModal();}
+function shareNative(){if(!shareItem)return;var tile=loadTiles().find(function(t){return t.id===shareItem.section;})||{name:shareItem.section};var text='📌 '+tile.name.toUpperCase()+'\n\n'+shareItem.title+(shareItem.body?'\n\n'+shareItem.body:'')+'\n\n— Dad Brain';if(navigator.share){navigator.share({title:'Dad Brain Note',text:text}).catch(function(){});}else{navigator.clipboard.writeText(text).then(function(){showToast('Copied ✓');});}closeShareModal();}
 
-function toggleVoice(){
-  voiceTarget = 'modal';
-  if(isRecording){ stopVoice(); return; }
-  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-  if(!SR){ showToast('Voice not supported on this browser'); return; }
-  recognition = initSpeechRecognition();
-  recognition.start();
-  isRecording = true;
-  document.getElementById('voiceBtn').classList.add('recording');
-  document.getElementById('voiceBtnText').textContent = '⏹ Recording… tap to stop';
-}
-function toggleQuickVoice(){
-  voiceTarget = 'quick';
-  if(isRecording){ stopVoice(); return; }
-  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-  if(!SR){ showToast('Voice not supported on this browser'); return; }
-  recognition = initSpeechRecognition();
-  recognition.start();
-  isRecording = true;
-  document.getElementById('quickVoiceBtn').classList.add('recording');
-  document.getElementById('quickVoiceBtnText').textContent = '⏹ Recording… tap to stop';
-}
-function stopVoice(){
-  if(recognition){ try{ recognition.stop(); }catch(e){} recognition = null; }
-  isRecording = false;
-  const vb = document.getElementById('voiceBtn');
-  const qvb = document.getElementById('quickVoiceBtn');
-  if(vb){ vb.classList.remove('recording'); document.getElementById('voiceBtnText').textContent = '🎤 Tap to dictate a note'; }
-  if(qvb){ qvb.classList.remove('recording'); document.getElementById('quickVoiceBtnText').textContent = '🎤 Tap to dictate'; }
-}
+function exportToPDF(){var tiles=loadTiles();var html='<!DOCTYPE html><html><head><meta charset="UTF-8"><style>body{font-family:Georgia,serif;max-width:700px;margin:40px auto;padding:0 24px;color:#1C1A16;}h1{font-size:28px;color:#5C3D2E;border-bottom:3px solid #D4860A;padding-bottom:12px;margin-bottom:8px;}.sub{color:#9E9589;font-size:13px;margin-bottom:32px;}h2{color:#5C3D2E;text-transform:uppercase;letter-spacing:1px;font-size:12px;margin:28px 0 12px;}.note{background:#FFFEF9;border:1px solid rgba(92,61,46,0.15);border-left:4px solid #D4860A;border-radius:8px;padding:14px 16px;margin-bottom:12px;}.nt{font-weight:700;font-size:15px;margin-bottom:4px;}.nb{font-size:13px;color:#5C4A3A;line-height:1.6;}.nd{font-size:11px;color:#9E9589;margin-top:8px;}.footer{margin-top:40px;padding-top:16px;border-top:1px solid #eee;font-size:11px;color:#9E9589;text-align:center;}</style></head><body><h1>🧠 Dad Brain</h1><div class="sub">Exported '+new Date().toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'})+'</div>';tiles.forEach(function(tile){var items=getCached(tile.id);if(!items.length)return;html+='<h2>'+tile.emoji+' '+tile.name+'</h2>';items.forEach(function(item){html+='<div class="note"><div class="nt">'+item.title+'</div>'+(item.body?'<div class="nb">'+item.body+'</div>':'')+'<div class="nd">'+(item.created_at?new Date(item.created_at).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}):'')+'</div></div>';});});html+='<div class="footer">Dad Brain — Your brain, organized.</div></body></html>';var blob=new Blob([html],{type:'text/html'});var url=URL.createObjectURL(blob);var a=document.createElement('a');a.href=url;a.download='dad-brain-export.html';a.click();URL.revokeObjectURL(url);showToast('Downloaded ✓');}
 
-// ── SMART REMINDERS ──
-function checkSmartReminders(){
-  const container = document.getElementById('smartReminders');
-  if(!container) return;
-  const reminders = [];
-  const now = new Date();
+function copyAllNotes(){var tiles=loadTiles();var text=‘DAD BRAIN — ‘+new Date().toLocaleDateString(‘en-US’,{month:‘long’,day:‘numeric’,year:‘numeric’})+’\n==================================================\n\n’;tiles.forEach(function(tile){var items=getCached(tile.id);if(!items.length)return;text+=tile.emoji+’ ‘+tile.name.toUpperCase()+’\n——————————\n’;items.forEach(function(item){text+=’• ‘+item.title+(item.body?’\n  ‘+item.body:’’)+’\n’;});text+=’\n’;});navigator.clipboard.writeText(text+’\n— Dad Brain’).then(function(){showToast(‘All notes copied ✓’);}).catch(function(){showToast(‘Copy failed’);});}
 
-  // Upcoming alerts in next 48 hours
-  SECTIONS.forEach(s => getCached(s).forEach(item => {
-    if(!item.alert_time) return;
-    const alertDt = new Date(item.alert_time);
-    const hoursUntil = (alertDt - now) / 3600000;
-    if(hoursUntil > 0 && hoursUntil <= 48)
-      reminders.push({icon:'⏰', title:`Upcoming: ${item.title}`, body:`Alert in ${hoursUntil<1?'less than an hour':Math.round(hoursUntil)+' hours'}`, action:'View Alerts', fn:`switchView('alerts',null)`});
-  }));
+function fireConfetti(){if(typeof confetti===‘undefined’)return;var count=120;var defs={startVelocity:28,spread:360,ticks:60,zIndex:9999};function r(a,b){return Math.random()*(b-a)+a;}confetti({startVelocity:defs.startVelocity,spread:defs.spread,ticks:defs.ticks,zIndex:defs.zIndex,particleCount:count*0.4,origin:{x:r(0.1,0.3),y:Math.random()-0.2},colors:[’#D4860A’,’#5C3D2E’,’#C45C26’,’#F2C14E’,’#6B7F5E’]});confetti({startVelocity:defs.startVelocity,spread:defs.spread,ticks:defs.ticks,zIndex:defs.zIndex,particleCount:count*0.4,origin:{x:r(0.7,0.9),y:Math.random()-0.2},colors:[’#D4860A’,’#5C3D2E’,’#C45C26’,’#F2C14E’,’#6B7F5E’]});setTimeout(function(){confetti({startVelocity:35,spread:defs.spread,ticks:defs.ticks,zIndex:defs.zIndex,particleCount:count*0.3,origin:{x:0.5,y:0.4},colors:[’#FFFEF9’,’#D4860A’,’#C45C26’,’#9B72CF’]});},150);}
 
-  // Gift idea older than 30 days
-  const gifts = getCached('gifts');
-  if(gifts.length > 0){
-    const oldest = gifts[gifts.length-1];
-    const daysSince = Math.floor((now - new Date(oldest.created_at)) / 86400000);
-    if(daysSince >= 30) reminders.push({icon:'🎁', title:'Gift idea check-in', body:`You saved "${oldest.title}" ${daysSince} days ago. Still relevant?`, action:'Review', fn:`switchView('gifts',null)`});
-  }
-
-  // No notes this week — only if they have existing data
-  const oneWeekAgo = Date.now() - 7*24*60*60*1000;
-  let weekCount = 0;
-  SECTIONS.forEach(s => getCached(s).forEach(i=>{ if(new Date(i.created_at).getTime()>=oneWeekAgo) weekCount++; }));
-  if(weekCount === 0 && Object.values(dataCache).some(arr=>arr.length>0))
-    reminders.push({icon:'🧠', title:"Your brain's been quiet", body:"Nothing logged this week. What's on your mind?", action:'Quick Capture', fn:`openQuickCapture()`});
-
-  if(!reminders.length){ container.style.display='none'; return; }
-  container.style.display = 'block';
-  container.innerHTML = `<div style="font-family:'Playfair Display',serif;font-size:14px;font-weight:600;color:var(--brown);margin-bottom:10px;">💡 Smart Reminders</div>` +
-    reminders.slice(0,2).map(r=>`
-    <div class="smart-reminder">
-      <div style="font-size:22px;flex-shrink:0">${r.icon}</div>
-      <div class="smart-reminder-text"><strong>${r.title}</strong>${r.body}</div>
-      <button class="smart-reminder-action" onclick="${r.fn};this.closest('.smart-reminder').remove()">${r.action}</button>
-    </div>`).join('');
-}
-// ── SHARE A NOTE ──
-let shareItem = null;
-function openShareModal(section, itemId){
-  shareItem = getCached(section).find(i=>i.id===itemId);
-  if(!shareItem) return;
-  const tile = loadTiles().find(t=>t.id===section)||{name:section};
-  document.getElementById('shareCardTag').textContent = tile.name.toUpperCase();
-  document.getElementById('shareCardTitle').textContent = shareItem.title;
-  document.getElementById('shareCardBody').textContent = shareItem.body||'';
-  document.getElementById('shareCardDate').textContent = shareItem.created_at?new Date(shareItem.created_at).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}):'';
-  document.getElementById('shareModal').classList.add('open');
-}
-function closeShareModal(){ document.getElementById('shareModal').classList.remove('open'); shareItem=null; }
-function shareAsText(){
-  if(!shareItem) return;
-  const tile = loadTiles().find(t=>t.id===shareItem.section)||{name:shareItem.section};
-  const text = `📌 ${tile.name.toUpperCase()}\n\n${shareItem.title}${shareItem.body?'\n\n'+shareItem.body:''}\n\n— Dad Brain`;
-  navigator.clipboard.writeText(text).then(()=>showToast('Copied ✓')).catch(()=>showToast('Copy failed'));
-  closeShareModal();
-}
-function shareNative(){
-  if(!shareItem) return;
-  const tile = loadTiles().find(t=>t.id===shareItem.section)||{name:shareItem.section};
-  const text = `📌 ${tile.name.toUpperCase()}\n\n${shareItem.title}${shareItem.body?'\n\n'+shareItem.body:''}\n\n— Dad Brain`;
-  if(navigator.share){ navigator.share({title:'Dad Brain Note',text}).catch(()=>{}); }
-  else { navigator.clipboard.writeText(text).then(()=>showToast('Copied ✓')); }
-  closeShareModal();
-}
-
-// ── PDF EXPORT ──
-function exportToPDF(){
-  const tiles = loadTiles();
-  let html=`<!DOCTYPE html><html><head><meta charset="UTF-8"><style>
-    body{font-family:Georgia,serif;max-width:700px;margin:40px auto;padding:0 24px;color:#1C1A16;}
-    h1{font-size:28px;color:#5C3D2E;border-bottom:3px solid #D4860A;padding-bottom:12px;margin-bottom:8px;}
-    .sub{color:#9E9589;font-size:13px;margin-bottom:32px;}
-    h2{color:#5C3D2E;text-transform:uppercase;letter-spacing:1px;font-size:12px;margin:28px 0 12px;}
-    .note{background:#FFFEF9;border:1px solid rgba(92,61,46,0.15);border-left:4px solid #D4860A;border-radius:8px;padding:14px 16px;margin-bottom:12px;}
-    .nt{font-weight:700;font-size:15px;margin-bottom:4px;}
-    .nb{font-size:13px;color:#5C4A3A;line-height:1.6;}
-    .nd{font-size:11px;color:#9E9589;margin-top:8px;}
-    .footer{margin-top:40px;padding-top:16px;border-top:1px solid #eee;font-size:11px;color:#9E9589;text-align:center;}
-  </style></head><body>
-
-  <h1>🧠 Dad Brain</h1>
-  <div class="sub">Exported ${new Date().toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'})}</div>`;
-  tiles.forEach(tile=>{
-    const items=getCached(tile.id); if(!items.length) return;
-    html+=`<h2>${tile.emoji} ${tile.name}</h2>`;
-    items.forEach(item=>{
-      html+=`<div class="note"><div class="nt">${item.title}</div>${item.body?`<div class="nb">${item.body}</div>`:''}<div class="nd">${item.created_at?new Date(item.created_at).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}):''}</div></div>`;
-    });
-  });
-  html+=`<div class="footer">Dad Brain — Your brain, organized.</div></body></html>`;
-  const blob=new Blob([html],{type:'text/html'});
-  const url=URL.createObjectURL(blob);
-  const a=document.createElement('a'); a.href=url; a.download='dad-brain-export.html'; a.click();
-  URL.revokeObjectURL(url);
-  showToast('Downloaded ✓ — open file, then print → Save as PDF');
-}
-
-// ── COPY ALL NOTES ──
-function copyAllNotes(){
-const tiles=loadTiles();
-let text=`DAD BRAIN — ${new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})}\n${'='.repeat(50)}\n\n`;
-tiles.forEach(tile=>{
-const items=getCached(tile.id); if(!items.length) return;
-text+=`${tile.emoji} ${tile.name.toUpperCase()}\n${'-'.repeat(30)}\n`;
-items.forEach(item=>{ text+=`• ${item.title}${item.body?'\n  '+item.body:''}\n`; });
-text+=’\n’;
-});
-navigator.clipboard.writeText(text+’\n— Dad Brain’).then(()=>showToast(‘All notes copied ✓’)).catch(()=>showToast(‘Copy failed’));
-}
-
-function fireConfetti(){
-if(typeof confetti===‘undefined’) return;
-const count=120, defaults={startVelocity:28,spread:360,ticks:60,zIndex:9999};
-const r=(a,b)=>Math.random()*(b-a)+a;
-confetti({…defaults,particleCount:count*0.4,origin:{x:r(0.1,0.3),y:Math.random()-0.2},colors:[’#D4860A’,’#5C3D2E’,’#C45C26’,’#F2C14E’,’#6B7F5E’]});
-confetti({…defaults,particleCount:count*0.4,origin:{x:r(0.7,0.9),y:Math.random()-0.2},colors:[’#D4860A’,’#5C3D2E’,’#C45C26’,’#F2C14E’,’#6B7F5E’]});
-setTimeout(()=>confetti({…defaults,particleCount:count*0.3,origin:{x:0.5,y:0.4},startVelocity:35,colors:[’#FFFEF9’,’#D4860A’,’#C45C26’,’#9B72CF’]}),150);
-}
-
-function showToast(msg){const t=document.getElementById(‘toast’);t.textContent=msg;t.classList.add(‘show’);setTimeout(()=>t.classList.remove(‘show’),2400);}
+function showToast(msg){var t=document.getElementById(‘toast’);t.textContent=msg;t.classList.add(‘show’);setTimeout(function(){t.classList.remove(‘show’);},2400);}
 function dismissReminder(){document.getElementById(‘reminderBanner’).style.display=‘none’;}
-
-function setGreeting(){
-const s=loadSettings(), name=s.userName||‘Dad’, hr=new Date().getHours();
-const px=hr<12?‘Good morning’:hr<17?‘Hey’:‘Evening’;
-const el=document.getElementById(‘greeting’); if(el) el.textContent=`${px}, ${name} 👋`;
-const de=document.getElementById(‘headerDate’); if(de) de.textContent=new Date().toLocaleDateString(‘en-US’,{weekday:‘long’,month:‘long’,day:‘numeric’});
-if(s.tagline){const tl=document.getElementById(‘homeTagline’);if(tl)tl.textContent=s.tagline;}
-}
-function updateAlertDropBadge(){
-let count=0; SECTIONS.forEach(s=>getCached(s).forEach(i=>{if(i.alert_time)count++;}));
-const el=document.getElementById(‘drop-badge-alerts’); if(el) el.textContent=count;
-const dot=document.getElementById(‘menuAlertDot’); if(dot) dot.style.display=count>0?‘block’:‘none’;
-}
-
-// ── DROPDOWN ──
+function setGreeting(){var s=loadSettings(),name=s.userName||‘Dad’,hr=new Date().getHours();var px=hr<12?‘Good morning’:hr<17?‘Hey’:‘Evening’;var el=document.getElementById(‘greeting’);if(el)el.textContent=px+’, ‘+name+’ 👋’;var de=document.getElementById(‘headerDate’);if(de)de.textContent=new Date().toLocaleDateString(‘en-US’,{weekday:‘long’,month:‘long’,day:‘numeric’});if(s.tagline){var tl=document.getElementById(‘homeTagline’);if(tl)tl.textContent=s.tagline;}}
+function updateAlertDropBadge(){var count=0;SECTIONS.forEach(function(s){getCached(s).forEach(function(i){if(i.alert_time)count++;});});var el=document.getElementById(‘drop-badge-alerts’);if(el)el.textContent=count;var dot=document.getElementById(‘menuAlertDot’);if(dot)dot.style.display=count>0?‘block’:‘none’;}
 function toggleMenu(){document.getElementById(‘dropdown’).classList.toggle(‘open’);}
 function closeMenu(){document.getElementById(‘dropdown’).classList.remove(‘open’);}
-document.addEventListener(‘click’,e=>{const w=document.getElementById(‘menuWrap’);if(w&&!w.contains(e.target))closeMenu();});
+document.addEventListener(‘click’,function(e){var w=document.getElementById(‘menuWrap’);if(w&&!w.contains(e.target))closeMenu();});
 
-// ── AUTH ──
-async function doLogin(){
-const email=document.getElementById(‘loginEmail’).value.trim();
-const pass=document.getElementById(‘loginPassword’).value;
-const err=document.getElementById(‘loginErr’), btn=document.getElementById(‘loginBtn’);
-if(!email||!pass){err.textContent=‘Please enter your email and password.’;err.style.display=‘block’;return;}
-btn.innerHTML=’<span class="spinner"></span>Signing in…’; btn.disabled=true;
-err.style.display=‘none’;
-try {
-const timeout = new Promise((_,reject)=>setTimeout(()=>reject(new Error(‘Connection timed out’)),10000));
-const authCall = sb.auth.signInWithPassword({email,password:pass});
-const {data,error} = await Promise.race([authCall, timeout]);
-btn.innerHTML=‘Sign In’; btn.disabled=false;
-if(error){err.textContent=error.message;err.style.display=‘block’;return;}
-await onLogin(data.user);
-} catch(e){
-btn.innerHTML=‘Sign In’; btn.disabled=false;
-err.textContent=e.message||‘Connection error — check your internet and try again.’;
-err.style.display=‘block’;
-console.error(‘doLogin error:’,e);
-}
-}
-async function doRegister(){
-const email=document.getElementById(‘regEmail’).value.trim();
-const pass=document.getElementById(‘regPassword’).value;
-const err=document.getElementById(‘regErr’), btn=document.getElementById(‘regBtn’);
-if(!email||!pass){err.textContent=‘Please fill in all fields.’;err.style.display=‘block’;return;}
-if(pass.length<6){err.textContent=‘Password must be at least 6 characters.’;err.style.display=‘block’;return;}
-btn.innerHTML=’<span class="spinner"></span>Creating…’; btn.disabled=true;
-const {data,error}=await sb.auth.signUp({email,password:pass});
-btn.innerHTML=‘Create Account’; btn.disabled=false;
-if(error){err.textContent=error.message;err.style.display=‘block’;return;}
-if(data.user&&data.session){ await onLogin(data.user); }
-else {
-document.getElementById(‘regErr’).textContent=‘✅ Check your email to confirm, then sign in.’;
-document.getElementById(‘regErr’).style.display=‘block’;
-document.getElementById(‘regErr’).style.color=‘var(–sage)’;
-}
-}
-async function onLogin(user){
-try {
-currentUser=user;
-document.getElementById(‘loginScreen’).style.display=‘none’;
-document.getElementById(‘registerScreen’).style.display=‘none’;
-document.getElementById(‘quickCaptureBtn’).style.display=‘flex’;
-showToast(‘Welcome back 👋’);
-await fetchAllSections();
-setGreeting();
-try { setDailyPrompt(); } catch(e){ console.warn(‘dailyPrompt’,e); }
-try { updateDadScore(); } catch(e){ console.warn(‘dadScore’,e); }
-try { checkSmartReminders(); } catch(e){ console.warn(‘smartReminders’,e); }
-updateBadges();
-updateAlertDropBadge();
-renderShelf();
-renderRecent();
-applySettings(loadSettings());
-} catch(e){
-console.error(‘onLogin error:’, e);
-showToast(‘Login error — please refresh’);
-}
-}
-async function logOut(){
-if(!confirm(‘Sign out of Dad Brain?’)) return;
-await sb.auth.signOut(); currentUser=null; dataCache={};
-document.getElementById(‘loginScreen’).style.display=‘flex’;
-}
+async function doLogin(){var email=document.getElementById(‘loginEmail’).value.trim();var pass=document.getElementById(‘loginPassword’).value;var err=document.getElementById(‘loginErr’),btn=document.getElementById(‘loginBtn’);if(!email||!pass){err.textContent=‘Please enter your email and password.’;err.style.display=‘block’;return;}btn.innerHTML=’<span class="spinner"></span>Signing in…’;btn.disabled=true;err.style.display=‘none’;try{var timeout=new Promise(function(_,reject){setTimeout(function(){reject(new Error(‘Connection timed out’));},10000);});var authCall=sb.auth.signInWithPassword({email:email,password:pass});var result=await Promise.race([authCall,timeout]);btn.innerHTML=‘Sign In’;btn.disabled=false;if(result.error){err.textContent=result.error.message;err.style.display=‘block’;return;}await onLogin(result.data.user);}catch(e){btn.innerHTML=‘Sign In’;btn.disabled=false;err.textContent=e.message||‘Connection error — check your internet and try again.’;err.style.display=‘block’;console.error(‘doLogin error:’,e);}}
+async function doRegister(){var email=document.getElementById(‘regEmail’).value.trim();var pass=document.getElementById(‘regPassword’).value;var err=document.getElementById(‘regErr’),btn=document.getElementById(‘regBtn’);if(!email||!pass){err.textContent=‘Please fill in all fields.’;err.style.display=‘block’;return;}if(pass.length<6){err.textContent=‘Password must be at least 6 characters.’;err.style.display=‘block’;return;}btn.innerHTML=’<span class="spinner"></span>Creating…’;btn.disabled=true;var result=await sb.auth.signUp({email:email,password:pass});btn.innerHTML=‘Create Account’;btn.disabled=false;if(result.error){err.textContent=result.error.message;err.style.display=‘block’;return;}if(result.data.user&&result.data.session){await onLogin(result.data.user);}else{document.getElementById(‘regErr’).textContent=‘✅ Check your email to confirm, then sign in.’;document.getElementById(‘regErr’).style.display=‘block’;document.getElementById(‘regErr’).style.color=‘var(–sage)’;}}
+async function onLogin(user){try{currentUser=user;document.getElementById(‘loginScreen’).style.display=‘none’;document.getElementById(‘registerScreen’).style.display=‘none’;showToast(‘Welcome back 👋’);await fetchAllSections();setGreeting();try{setDailyPrompt();}catch(e){console.warn(‘dailyPrompt’,e);}try{updateDadScore();}catch(e){console.warn(‘dadScore’,e);}try{checkSmartReminders();}catch(e){console.warn(‘smartReminders’,e);}updateBadges();updateAlertDropBadge();renderShelf();renderRecent();applySettings(loadSettings());}catch(e){console.error(‘onLogin error:’,e);showToast(‘Login error — please refresh’);}}
+async function logOut(){if(!confirm(‘Sign out of Dad Brain?’))return;await sb.auth.signOut();currentUser=null;dataCache={};document.getElementById(‘loginScreen’).style.display=‘flex’;}
 function showRegister(){document.getElementById(‘loginScreen’).style.display=‘none’;document.getElementById(‘registerScreen’).style.display=‘flex’;}
 function showLogin(){document.getElementById(‘registerScreen’).style.display=‘none’;document.getElementById(‘loginScreen’).style.display=‘flex’;}
 
-[‘modal’,‘tileModal’,‘quickModal’,‘shareModal’].forEach(id=>{
-const el=document.getElementById(id);
-if(el) el.addEventListener(‘click’,e=>{ if(e.target===el){ if(id===‘modal’) closeModal(); else if(id===‘tileModal’) closeTileModal(); else if(id===‘quickModal’) closeQuickCapture(); else if(id===‘shareModal’) closeShareModal(); }});
-});
+[‘modal’,‘tileModal’,‘shareModal’].forEach(function(id){var el=document.getElementById(id);if(el)el.addEventListener(‘click’,function(e){if(e.target===el){if(id===‘modal’)closeModal();else if(id===‘tileModal’)closeTileModal();else if(id===‘shareModal’)closeShareModal();}});});
 
-// ── INIT ──
-(async()=>{
-// Attach login button listener as backup
-const lb = document.getElementById(‘loginBtn’);
-if(lb) lb.addEventListener(‘click’, doLogin);
-const rb = document.getElementById(‘regBtn’);
-if(rb) rb.addEventListener(‘click’, doRegister);
-try {
-setGreeting();
-applySettings(loadSettings());
-} catch(e){ console.warn(‘Init setup error:’,e); }
-try {
-const {data:{session}}=await sb.auth.getSession();
-if(session?.user) await onLogin(session.user);
-sb.auth.onAuthStateChange(async(event,session)=>{
-if(event===‘SIGNED_IN’&&session?.user&&!currentUser) await onLogin(session.user);
-});
-} catch(e){ console.error(‘Supabase init error:’,e); }
-})();
+(async function(){try{setGreeting();applySettings(loadSettings());}catch(e){console.warn(‘Init setup error:’,e);}try{var sessionResult=await sb.auth.getSession();if(sessionResult.data.session&&sessionResult.data.session.user)await onLogin(sessionResult.data.session.user);sb.auth.onAuthStateChange(async function(event,session){if(event===‘SIGNED_IN’&&session&&session.user&&!currentUser)await onLogin(session.user);});}catch(e){console.error(‘Supabase init error:’,e);}})();
 </script>
 
 </body>
