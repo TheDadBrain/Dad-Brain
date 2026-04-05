@@ -210,6 +210,29 @@ header { position:sticky; top:0; z-index:100; background:rgba(245,240,232,0.97);
 ::-webkit-scrollbar-track { background:transparent; }
 ::-webkit-scrollbar-thumb { background:var(–border); border-radius:3px; }
 
+/* QUICK CAPTURE BUTTON */
+.quick-capture-btn { position:fixed; bottom:28px; right:24px; width:58px; height:58px; background:#5C3D2E; border:none; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:26px; cursor:pointer; box-shadow:0 6px 24px rgba(92,61,46,0.35); z-index:150; transition:all 0.2s; }
+.quick-capture-btn:hover { background:#C45C26; transform:scale(1.08); }
+.quick-capture-btn:active { transform:scale(0.95); }
+
+/* VOICE BUTTON */
+.voice-btn { display:flex; align-items:center; gap:8px; background:var(–cream); border:1.5px solid var(–border); border-radius:12px; padding:10px 16px; font-size:13px; font-weight:500; color:var(–brown); cursor:pointer; font-family:‘DM Sans’,sans-serif; transition:all 0.2s; width:100%; margin-top:8px; }
+.voice-btn:hover { background:var(–brown); color:#FFFEF9; border-color:var(–brown); }
+.voice-btn.recording { background:#C45C26; color:#FFFEF9; border-color:#C45C26; animation:pulse 1s infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.7} }
+.voice-dot { width:10px; height:10px; border-radius:50%; background:currentColor; flex-shrink:0; }
+
+/* SMART REMINDER STRIP */
+.smart-reminder { background:#FFFEF9; border:1px solid rgba(212,134,10,0.3); border-left:4px solid #D4860A; border-radius:12px; padding:14px 16px; margin-bottom:12px; display:flex; align-items:center; gap:12px; }
+.smart-reminder-text { flex:1; font-size:13px; color:#1C1A16; line-height:1.5; }
+.smart-reminder-text strong { display:block; font-weight:600; margin-bottom:2px; }
+.smart-reminder-action { background:#5C3D2E; color:#FFFEF9; border:none; border-radius:8px; padding:7px 14px; font-size:12px; font-weight:500; cursor:pointer; font-family:‘DM Sans’,sans-serif; white-space:nowrap; }
+
+/* QUICK CAPTURE FOLDER PICKER */
+.folder-picker { display:grid; grid-template-columns:repeat(2,1fr); gap:8px; margin:12px 0; }
+.folder-pick-btn { background:var(–cream); border:1.5px solid var(–border); border-radius:10px; padding:10px 8px; font-size:12px; font-weight:600; color:var(–ink); cursor:pointer; font-family:‘DM Sans’,sans-serif; transition:all 0.15s; text-align:center; }
+.folder-pick-btn:hover, .folder-pick-btn.selected { background:#5C3D2E; color:#FFFEF9; border-color:#5C3D2E; }
+
 @media (max-width:700px) {
 .sidebar { display:none; }
 .layout { padding:16px; }
@@ -367,6 +390,9 @@ header { padding:0 16px; height:56px; }
     </div>
     <button onclick="document.getElementById('milestoneBanner').style.display='none'" style="margin-left:auto;background:rgba(255,255,255,0.2);border:none;color:#FFFEF9;border-radius:8px;padding:6px 12px;font-size:12px;cursor:pointer;font-family:'DM Sans',sans-serif;">✕</button>
   </div>
+
+  <!-- SMART REMINDERS -->
+  <div id="smartReminders" style="margin-bottom:20px;display:none;"></div>
 
   <div id="reminderBanner" class="reminder-strip" style="display:none">
     <div class="reminder-icon">🔔</div>
@@ -547,6 +573,10 @@ header { padding:0 16px; height:56px; }
     <div class="form-field">
       <label>Notes</label>
       <textarea id="inputBody" placeholder="Details, context, why it matters..."></textarea>
+      <button class="voice-btn" id="voiceBtn" onclick="toggleVoice()">
+        <span class="voice-dot"></span>
+        <span id="voiceBtnText">🎤 Tap to dictate a note</span>
+      </button>
     </div>
     <div class="form-field">
       <label>🔗 Link / URL</label>
@@ -600,6 +630,35 @@ header { padding:0 16px; height:56px; }
     <div class="modal-actions">
       <button class="btn-cancel" onclick="closeTileModal()">Cancel</button>
       <button class="btn-save" onclick="saveTile()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- QUICK CAPTURE FLOATING BUTTON -->
+
+<button class="quick-capture-btn" id="quickCaptureBtn" onclick="openQuickCapture()" title="Quick capture">➕</button>
+
+<!-- QUICK CAPTURE MODAL -->
+
+<div class="modal-overlay" id="quickModal">
+  <div class="modal">
+    <div class="modal-title">⚡ Quick Capture</div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:14px;">Dump the thought. Pick the folder. Done.</div>
+    <div class="form-field">
+      <label>What's on your mind?</label>
+      <textarea id="quickInput" placeholder="Type or tap the mic to speak..." style="height:100px;"></textarea>
+      <button class="voice-btn" id="quickVoiceBtn" onclick="toggleQuickVoice()">
+        <span class="voice-dot"></span>
+        <span id="quickVoiceBtnText">🎤 Tap to dictate</span>
+      </button>
+    </div>
+    <div class="form-field">
+      <label>Save to folder</label>
+      <div class="folder-picker" id="folderPicker"></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeQuickCapture()">Cancel</button>
+      <button class="btn-save" onclick="saveQuickCapture()">Save It ⚡</button>
     </div>
   </div>
 </div>
