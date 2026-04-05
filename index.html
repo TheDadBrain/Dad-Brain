@@ -607,26 +607,23 @@ header { padding:0 16px; height:56px; }
 <div class="toast" id="toast"></div>
 
 <script>
-// ── SUPABASE INIT ──
 const { createClient } = supabase;
 const sb = createClient(
   'https://afzqplqnhmmqmmpcwuzu.supabase.co',
   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFmenFwbHFuaG1tcW1tcGN3dXp1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUzMTY0MDEsImV4cCI6MjA5MDg5MjQwMX0.6pbDySL17i5_gI7V_HvPo_8zlc4WajvQpZ3Kcvl0F5k'
 );
 
-const SECTIONS = ['family','gifts','hobbies','reads','remember','business','movies','tv','restaurants'];
-const ACCENTS = {family:'#D4860A',gifts:'#C45C26',hobbies:'#6B7F5E',reads:'#7A8FA6',remember:'#9B72CF',business:'#1C1A16',movies:'#8B3A8B',tv:'#2A7A9B',restaurants:'#B55A1A'};
-// Core locked tiles — names are permanent, only emoji can be customized
-const LOCKED_TILE_IDS = ['family','gifts','hobbies','reads','goals','movies','tv','restaurants'];
+const SECTIONS = ['family','gifts','hobbies','reads','goals','movies','tv','restaurants'];
+const ACCENTS  = {family:'#D4860A',gifts:'#C45C26',hobbies:'#6B7F5E',reads:'#7A8FA6',goals:'#9B72CF',movies:'#8B3A8B',tv:'#2A7A9B',restaurants:'#B55A1A'};
 const DEFAULT_TILES = [
-  {id:'family',  emoji:'👨‍👩‍👧', name:'Family',         sub:'notes',    locked:true},
-  {id:'gifts',   emoji:'🎁',      name:'Gift Ideas',     sub:'ideas',    locked:true},
-  {id:'hobbies', emoji:'🎯',      name:'Hobbies',        sub:'items',    locked:true},
-  {id:'reads',   emoji:'📚',      name:'Things to Read', sub:'saved',    locked:true},
-  {id:'goals',   emoji:'🏆',      name:'Goals',          sub:'goals',    locked:true},
-  {id:'movies',  emoji:'🎬',      name:'Movies',         sub:'to watch', locked:true},
-  {id:'tv',      emoji:'📺',      name:'TV Shows',       sub:'series',   locked:true},
-  {id:'restaurants',emoji:'🍽️',  name:'Restaurants',    sub:'spots',    locked:true},
+  {id:'family',      emoji:'👨‍👩‍👧', name:'Family',         sub:'notes',    locked:true},
+  {id:'gifts',       emoji:'🎁',     name:'Gift Ideas',     sub:'ideas',    locked:true},
+  {id:'hobbies',     emoji:'🎯',     name:'Hobbies',        sub:'items',    locked:true},
+  {id:'reads',       emoji:'📚',     name:'Things to Read', sub:'saved',    locked:true},
+  {id:'goals',       emoji:'🏆',     name:'Goals',          sub:'goals',    locked:true},
+  {id:'movies',      emoji:'🎬',     name:'Movies',         sub:'to watch', locked:true},
+  {id:'tv',          emoji:'📺',     name:'TV Shows',       sub:'series',   locked:true},
+  {id:'restaurants', emoji:'🍽️',    name:'Restaurants',    sub:'spots',    locked:true},
 ];
 const THEMES = {
   warm:  {'--cream':'#F5F0E8','--warm-white':'#FDFAF4','--ink':'#1C1A16','--brown':'#5C3D2E','--card-bg':'#FFFEF9','--border':'rgba(92,61,46,0.12)','--muted':'#9E9589'},
@@ -636,207 +633,156 @@ const THEMES = {
   forest:{'--cream':'#1E2E22','--warm-white':'#243028','--ink':'#D8ECD8','--brown':'#7DAF7D','--card-bg':'#243028','--border':'rgba(255,255,255,0.08)','--muted':'#5A7A5A'},
 };
 
-let currentSection = 'home';
-let modalSection = '';
-let editingItemId = null;
-let editMode = false;
-let editingTileId = null;
-let currentUser = null;
-// In-memory cache so we don't re-fetch on every render
-let dataCache = {};
+let currentSection='home', modalSection='', editingItemId=null, editMode=false, editingTileId=null, currentUser=null, dataCache={};
 
-// ── LOCAL HELPERS (tiles + settings stay local) ──
+// ── STORAGE ──
 function loadTiles(){
   try {
-    const saved = JSON.parse(localStorage.getItem('dadsTiles')||'null');
+    const saved=JSON.parse(localStorage.getItem('dadsTiles')||'null');
     if(!saved) return DEFAULT_TILES.map(t=>({...t}));
-    // Merge: ensure all locked tiles exist with correct names
-    const merged = DEFAULT_TILES.map(def => {
-      const existing = saved.find(s=>s.id===def.id);
-      return existing ? {...existing, name:def.name, locked:true} : {...def};
+    const merged=DEFAULT_TILES.map(def=>{
+      const ex=saved.find(s=>s.id===def.id);
+      return ex?{...ex,name:def.name,locked:true}:{...def};
     });
-    // Append any custom tiles the user added
-    const customTiles = saved.filter(s=>!s.locked);
-    return [...merged, ...customTiles];
+    const custom=saved.filter(s=>!s.locked);
+    return [...merged,...custom];
   } catch { return DEFAULT_TILES.map(t=>({...t})); }
 }
-function saveTiles(t){localStorage.setItem('dadsTiles',JSON.stringify(t))}
+function saveTiles(t){localStorage.setItem('dadsTiles',JSON.stringify(t));}
 function loadSettings(){try{return JSON.parse(localStorage.getItem('dadsBrainSettings')||'{}')}catch{return{}}}
-function persistSettings(s){localStorage.setItem('dadsBrainSettings',JSON.stringify(s))}
+function persistSettings(s){localStorage.setItem('dadsBrainSettings',JSON.stringify(s));}
 
-// ── SUPABASE DATA ──
-async function fetchSection(section) {
+// ── SUPABASE ──
+async function fetchSection(section){
   if(!currentUser) return [];
-  const { data, error } = await sb.from('entries')
-    .select('*')
-    .eq('user_id', currentUser.id)
-    .eq('section', section)
-    .order('id', { ascending: false });
-  if(error){ console.error(error); return []; }
-  dataCache[section] = data || [];
+  const {data,error}=await sb.from('entries').select('*').eq('user_id',currentUser.id).eq('section',section).order('id',{ascending:false});
+  if(error){console.error(error);return[];}
+  dataCache[section]=data||[];
   return dataCache[section];
 }
-
-async function fetchAllSections() {
+async function fetchAllSections(){
   if(!currentUser) return;
-  const { data, error } = await sb.from('entries')
-    .select('*')
-    .eq('user_id', currentUser.id)
-    .order('id', { ascending: false });
-  if(error){ console.error(error); return; }
-  dataCache = {};
-  SECTIONS.forEach(s => dataCache[s] = []);
-  (data||[]).forEach(item => {
-    if(!dataCache[item.section]) dataCache[item.section] = [];
+  const {data,error}=await sb.from('entries').select('*').eq('user_id',currentUser.id).order('id',{ascending:false});
+  if(error){console.error(error);return;}
+  dataCache={};
+  SECTIONS.forEach(s=>dataCache[s]=[]);
+  (data||[]).forEach(item=>{
+    if(!dataCache[item.section]) dataCache[item.section]=[];
     dataCache[item.section].push(item);
   });
 }
-
-function getCached(section){ return dataCache[section] || []; }
+function getCached(s){return dataCache[s]||[];}
 
 // ── NAV ──
-function switchView(view, btn) {
+function switchView(view,btn){
   document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
   document.getElementById('view-'+view).classList.add('active');
-  currentSection = view;
+  currentSection=view;
   document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active'));
   if(btn) btn.classList.add('active');
-  else document.querySelectorAll('.nav-item').forEach(b=>{if(b.getAttribute('onclick')?.includes("'"+view+"'"))b.classList.add('active')});
-  if(view==='home'){ renderShelf(); renderRecent(); setDailyPrompt(); updateDadScore(); }
+  if(view==='home'){renderShelf();renderRecent();setDailyPrompt();updateDadScore();}
   else if(view==='settings') populateSettings();
   else if(view==='alerts') renderAlerts();
-  else renderSection(view, true);
+  else renderSection(view,true);
 }
 
 // ── MODAL ──
-function openModal(section, itemId) {
-  modalSection = section;
-  editingItemId = itemId || null;
-  if(itemId) {
-    const item = getCached(section).find(i=>i.id===itemId);
+function openModal(section,itemId){
+  modalSection=section; editingItemId=itemId||null;
+  if(itemId){
+    const item=getCached(section).find(i=>i.id===itemId);
     if(!item) return;
-    document.getElementById('modalTitle').textContent = 'Edit Entry';
-    document.getElementById('modalSaveBtn').textContent = 'Save Changes';
-    document.getElementById('inputTitle').value = item.title||'';
-    document.getElementById('inputBody').value = item.body||'';
-    document.getElementById('inputLink').value = item.link||'';
-    document.getElementById('inputReminder').value = item.reminder||'';
+    document.getElementById('modalTitle').textContent='Edit Entry';
+    document.getElementById('modalSaveBtn').textContent='Save Changes';
+    document.getElementById('inputTitle').value=item.title||'';
+    document.getElementById('inputBody').value=item.body||'';
+    document.getElementById('inputLink').value=item.link||'';
+    document.getElementById('inputReminder').value=item.reminder||'';
     if(item.alert_time){
-      const dt = new Date(item.alert_time);
-      document.getElementById('inputAlertDate').value = dt.toISOString().split('T')[0];
-      document.getElementById('inputAlertTime').value = dt.toTimeString().slice(0,5);
+      const dt=new Date(item.alert_time);
+      document.getElementById('inputAlertDate').value=dt.toISOString().split('T')[0];
+      document.getElementById('inputAlertTime').value=dt.toTimeString().slice(0,5);
     } else {
-      document.getElementById('inputAlertDate').value = '';
-      document.getElementById('inputAlertTime').value = '';
+      document.getElementById('inputAlertDate').value='';
+      document.getElementById('inputAlertTime').value='';
     }
   } else {
-    const titles={family:'Add Family Note',gifts:'Add Gift Idea',hobbies:'Add Hobby',reads:'Save a Link',remember:'Remember This',business:'Add Hustle Note'};
-    document.getElementById('modalTitle').textContent = titles[section]||'Add Note';
-    document.getElementById('modalSaveBtn').textContent = 'Save It';
+    const titles={family:'Add Family Note',gifts:'Add Gift Idea',hobbies:'Add Hobby',reads:'Save a Link',goals:'Add a Goal',movies:'Add Movie',tv:'Add Show',restaurants:'Add Restaurant'};
+    document.getElementById('modalTitle').textContent=titles[section]||'Add Note';
+    document.getElementById('modalSaveBtn').textContent='Save It';
     ['inputTitle','inputBody','inputLink','inputReminder','inputAlertDate','inputAlertTime'].forEach(id=>document.getElementById(id).value='');
   }
   document.getElementById('modal').classList.add('open');
-  setTimeout(()=>document.getElementById('inputTitle').focus(), 100);
+  setTimeout(()=>document.getElementById('inputTitle').focus(),100);
 }
-function closeModal(){ document.getElementById('modal').classList.remove('open'); editingItemId=null; }
+function closeModal(){document.getElementById('modal').classList.remove('open');editingItemId=null;}
 
-// ── SAVE ITEM ──
-async function saveItem() {
-  const title = document.getElementById('inputTitle').value.trim();
-  if(!title){ document.getElementById('inputTitle').style.borderColor='var(--rust)'; return; }
+// ── SAVE ──
+async function saveItem(){
+  const title=document.getElementById('inputTitle').value.trim();
+  if(!title){document.getElementById('inputTitle').style.borderColor='var(--rust)';return;}
   document.getElementById('inputTitle').style.borderColor='';
-  const alertDate = document.getElementById('inputAlertDate').value;
-  const alertTimeVal = document.getElementById('inputAlertTime').value;
-  const alertTime = (alertDate && alertTimeVal) ? `${alertDate}T${alertTimeVal}` : null;
-  const btn = document.getElementById('modalSaveBtn');
-  btn.innerHTML = '<span class="spinner"></span>Saving…';
-  btn.disabled = true;
-
-  const payload = {
-    user_id: currentUser.id,
-    section: modalSection,
-    title,
-    body: document.getElementById('inputBody').value.trim() || null,
-    link: document.getElementById('inputLink').value.trim() || null,
-    reminder: document.getElementById('inputReminder').value.trim() || null,
-    alert_time: alertTime || null,
+  const alertDate=document.getElementById('inputAlertDate').value;
+  const alertTimeVal=document.getElementById('inputAlertTime').value;
+  const alertTime=(alertDate&&alertTimeVal)?`${alertDate}T${alertTimeVal}`:null;
+  const btn=document.getElementById('modalSaveBtn');
+  btn.innerHTML='<span class="spinner"></span>Saving…'; btn.disabled=true;
+  const payload={
+    user_id:currentUser.id, section:modalSection, title,
+    body:document.getElementById('inputBody').value.trim()||null,
+    link:document.getElementById('inputLink').value.trim()||null,
+    reminder:document.getElementById('inputReminder').value.trim()||null,
+    alert_time:alertTime||null,
   };
-
   let error;
-  if(editingItemId) {
-    ({ error } = await sb.from('entries').update(payload).eq('id', editingItemId).eq('user_id', currentUser.id));
+  if(editingItemId){
+    ({error}=await sb.from('entries').update(payload).eq('id',editingItemId).eq('user_id',currentUser.id));
   } else {
-    ({ error } = await sb.from('entries').insert(payload));
+    ({error}=await sb.from('entries').insert(payload));
   }
-
-  btn.innerHTML = 'Save It';
-  btn.disabled = false;
-
-  if(error){ showToast('Error saving — try again'); console.error(error); return; }
-
-  if(alertTime) scheduleAlert({title, reminder: payload.reminder, alertTime});
+  btn.innerHTML='Save It'; btn.disabled=false;
+  if(error){showToast('Error saving — try again');console.error(error);return;}
+  if(alertTime) scheduleAlert({title,reminder:payload.reminder,alertTime});
   closeModal();
   await fetchSection(modalSection);
   renderSection(modalSection);
-  updateBadges();
-  renderShelf();
+  updateBadges(); renderShelf();
   if(currentSection==='home') renderRecent();
-  showToast(editingItemId ? 'Entry updated ✓' : 'Saved ✓');
+  showToast(editingItemId?'Entry updated ✓':'Saved ✓');
   if(!editingItemId) fireConfetti();
-  updateAlertDropBadge();
-  updateDadScore();
+  updateAlertDropBadge(); updateDadScore();
 }
 
 // ── DELETE ──
-async function deleteItem(section, itemId) {
+async function deleteItem(section,itemId){
   if(!confirm('Delete this entry?')) return;
-  const { error } = await sb.from('entries').delete().eq('id', itemId).eq('user_id', currentUser.id);
-  if(error){ showToast('Error deleting'); return; }
-  dataCache[section] = (dataCache[section]||[]).filter(i=>i.id!==itemId);
-  renderSection(section);
-  updateBadges();
-  renderShelf();
-  showToast('Deleted');
+  const {error}=await sb.from('entries').delete().eq('id',itemId).eq('user_id',currentUser.id);
+  if(error){showToast('Error deleting');return;}
+  dataCache[section]=(dataCache[section]||[]).filter(i=>i.id!==itemId);
+  renderSection(section); updateBadges(); renderShelf(); showToast('Deleted');
 }
 
-// ── RENDER ──
-async function renderSection(section, forceRefetch) {
-  if(section==='home'){ renderRecent(); return; }
+// ── RENDER SECTION ──
+async function renderSection(section,forceRefetch){
+  if(section==='home'){renderRecent();return;}
   if(forceRefetch) await fetchSection(section);
-  const items = getCached(section);
-  const tile = loadTiles().find(t=>t.id===section)||{};
-  const emoji = tile.emoji||'📝';
-  const container = document.getElementById('cards-'+section);
+  const items=getCached(section);
+  const tile=loadTiles().find(t=>t.id===section)||{};
+  const emoji=tile.emoji||'📝';
+  const container=document.getElementById('cards-'+section);
   if(!container) return;
   if(!items.length){
     container.innerHTML=`<div class="empty"><div class="empty-icon">${emoji}</div><div class="empty-title">Nothing here yet</div><div class="empty-sub">Tap the button above to add your first entry.</div></div>`;
     return;
   }
-  if(section==='reads'){
-    container.innerHTML=items.map(item=>`
-      <div class="link-card">
-        <div class="link-favicon" onclick="${item.link?`window.open('${item.link}','_blank')`:''}" style="${item.link?'cursor:pointer':''}">${emoji}</div>
-        <div class="link-info" onclick="${item.link?`window.open('${item.link}','_blank')`:''}" style="${item.link?'cursor:pointer':''}">
-          <div class="link-title">${item.title}</div>
-          ${item.link?`<div class="link-url">${item.link}</div>`:''}
-          ${item.body?`<div class="link-note">${item.body}</div>`:''}
-        </div>
-        <div class="link-actions">
-          <div style="font-size:11px;color:var(--muted)">${item.created_at ? new Date(item.created_at).toLocaleDateString('en-US',{month:'short',day:'numeric'}) : ''}</div>
-          ${item.alert_time?`<div style="font-size:11px;color:var(--sage)">⏰ Alert</div>`:''}
-          <button class="card-btn" onclick="openModal('${section}',${item.id})">Edit</button>
-          <button class="card-btn del" onclick="deleteItem('${section}',${item.id})">Delete</button>
-        </div>
-      </div>`).join('');
-    return;
-  }
   container.innerHTML=items.map(item=>`
     <div class="card" style="--card-accent:${ACCENTS[section]||'var(--amber)'}">
-      <div class="card-tag">${section.toUpperCase()}</div>
+      <div class="card-tag">${(tile.name||section).toUpperCase()}</div>
       <div class="card-title">${item.title}</div>
       ${item.body?`<div class="card-body">${item.body}</div>`:''}
+      ${item.link?`<div style="margin-top:8px"><a href="${item.link}" target="_blank" style="font-size:12px;color:var(--amber);word-break:break-all;">🔗 ${item.link}</a></div>`:''}
       <div class="card-footer">
-        <div class="card-date">${item.created_at ? new Date(item.created_at).toLocaleDateString('en-US',{month:'short',day:'numeric'}) : ''}</div>
+        <div class="card-date">${item.created_at?new Date(item.created_at).toLocaleDateString('en-US',{month:'short',day:'numeric'}):''}</div>
         ${item.reminder?`<span style="font-size:11px;color:var(--sage)">🔔 ${item.reminder}</span>`:''}
         ${item.alert_time?`<span style="font-size:11px;color:var(--sage)">⏰</span>`:''}
         <div class="card-actions">
@@ -847,12 +793,12 @@ async function renderSection(section, forceRefetch) {
     </div>`).join('');
 }
 
-function renderRecent() {
-  const all = [];
-  SECTIONS.forEach(s => getCached(s).slice(0,2).forEach(item=>all.push({...item,section:s})));
+function renderRecent(){
+  const all=[];
+  SECTIONS.forEach(s=>getCached(s).slice(0,3).forEach(item=>all.push({...item,section:s})));
   all.sort((a,b)=>b.id-a.id);
-  const container = document.getElementById('recentCards');
-  const recent = all.slice(0,6);
+  const container=document.getElementById('recentCards');
+  const recent=all.slice(0,6);
   if(!recent.length){
     container.innerHTML=`<div class="empty"><div class="empty-icon">🌱</div><div class="empty-title">Your Brain is Empty</div><div class="empty-sub">Start adding things from any section.</div></div>`;
     return;
@@ -863,7 +809,7 @@ function renderRecent() {
       <div class="card-title">${item.title}</div>
       ${item.body?`<div class="card-body">${item.body.slice(0,80)}${item.body.length>80?'…':''}</div>`:''}
       <div class="card-footer">
-        <div class="card-date">${item.created_at ? new Date(item.created_at).toLocaleDateString('en-US',{month:'short',day:'numeric'}) : ''}</div>
+        <div class="card-date">${item.created_at?new Date(item.created_at).toLocaleDateString('en-US',{month:'short',day:'numeric'}):''}</div>
         <div class="card-actions">
           <button class="card-btn" onclick="openModal('${item.section}',${item.id})">Edit</button>
           <button class="card-btn" onclick="switchView('${item.section}',null)">See all →</button>
@@ -872,322 +818,232 @@ function renderRecent() {
     </div>`).join('');
 }
 
-function renderAlerts() {
-  const all = [];
-  SECTIONS.forEach(s => getCached(s).forEach(item=>{ if(item.alert_time) all.push({...item}); }));
+function renderAlerts(){
+  const all=[];
+  SECTIONS.forEach(s=>getCached(s).forEach(item=>{if(item.alert_time) all.push({...item});}));
   all.sort((a,b)=>new Date(a.alert_time)-new Date(b.alert_time));
-  const container = document.getElementById('alerts-list');
-  const badge = document.getElementById('badge-alerts');
-  if(badge) badge.textContent = all.length;
-  if(!all.length){
-    container.innerHTML=`<div class="empty"><div class="empty-icon">🔔</div><div class="empty-title">No alerts set</div><div class="empty-sub">Toggle "Set an Alert" when adding or editing any entry.</div></div>`;
-    return;
-  }
-  const tiles = loadTiles();
+  const container=document.getElementById('alerts-list');
+  if(!all.length){container.innerHTML=`<div class="empty"><div class="empty-icon">🔔</div><div class="empty-title">No alerts set</div><div class="empty-sub">Add a date and time when creating any entry.</div></div>`;return;}
+  const tiles=loadTiles();
   container.innerHTML=all.map(item=>{
-    const tile = tiles.find(t=>t.id===item.section)||{emoji:'📝',name:item.section};
-    const dt = new Date(item.alert_time);
-    const isPast = dt < new Date();
-    const formatted = dt.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'})+' at '+dt.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
+    const tile=tiles.find(t=>t.id===item.section)||{emoji:'📝',name:item.section};
+    const dt=new Date(item.alert_time);
+    const isPast=dt<new Date();
+    const fmt=dt.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'})+' at '+dt.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
     return `<div class="card" style="--card-accent:${isPast?'var(--muted)':'var(--sage)'}">
-      <div class="card-tag">${tile.emoji} ${tile.name.toUpperCase()} ${isPast?'· <span style="color:var(--muted)">Past</span>':''}</div>
+      <div class="card-tag">${tile.emoji} ${tile.name.toUpperCase()}</div>
       <div class="card-title">${item.title}</div>
-      ${item.reminder?`<div class="card-body">🔔 ${item.reminder}</div>`:''}
-      <div class="card-footer">
-        <div class="card-date">⏰ ${formatted}</div>
+      <div class="card-footer"><div class="card-date">⏰ ${fmt}</div>
         <div class="card-actions">
           <button class="card-btn" onclick="openModal('${item.section}',${item.id})">Edit</button>
           <button class="card-btn del" onclick="removeAlert('${item.section}',${item.id})">Remove</button>
         </div>
-      </div>
-    </div>`;
+      </div></div>`;
   }).join('');
 }
 
-async function removeAlert(section, itemId) {
-  const { error } = await sb.from('entries').update({ alert_time: null }).eq('id', itemId).eq('user_id', currentUser.id);
-  if(error){ showToast('Error'); return; }
-  await fetchSection(section);
-  renderAlerts();
-  showToast('Alert removed');
+async function removeAlert(section,itemId){
+  const {error}=await sb.from('entries').update({alert_time:null}).eq('id',itemId).eq('user_id',currentUser.id);
+  if(error){showToast('Error');return;}
+  await fetchSection(section); renderAlerts(); showToast('Alert removed');
 }
 
 // ── SHELF ──
-function renderShelf() {
-  const tiles = loadTiles();
-  // Show/hide save banner
-  let banner = document.getElementById('editModeBanner');
-  if(editMode) {
-    if(!banner) {
-      banner = document.createElement('div');
-      banner.id = 'editModeBanner';
-      banner.style.cssText = 'background:var(--brown);color:#FFFEF9;border-radius:12px;padding:12px 18px;display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;font-size:14px;font-weight:500;';
-      banner.innerHTML = '<span>✏️ Editing folders…</span><button onclick="toggleEditMode()" style="background:#FFFEF9;color:var(--brown);border:none;border-radius:8px;padding:7px 16px;font-size:13px;font-weight:600;cursor:pointer;font-family:\'DM Sans\',sans-serif;">✅ Save & Done</button>';
+function renderShelf(){
+  const tiles=loadTiles();
+  let banner=document.getElementById('editModeBanner');
+  if(editMode){
+    if(!banner){
+      banner=document.createElement('div'); banner.id='editModeBanner';
+      banner.style.cssText='background:var(--brown);color:#FFFEF9;border-radius:12px;padding:12px 18px;display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;font-size:14px;font-weight:500;';
+      banner.innerHTML='<span>✏️ Hold & drag to reorder</span><button onclick="toggleEditMode()" style="background:#FFFEF9;color:var(--brown);border:none;border-radius:8px;padding:7px 16px;font-size:13px;font-weight:600;cursor:pointer;font-family:\'DM Sans\',sans-serif;">✅ Save & Done</button>';
       document.getElementById('quickShelf').before(banner);
     }
-  } else {
-    if(banner) banner.remove();
-  }
-  let html = tiles.map(t=>`
+  } else { if(banner) banner.remove(); }
+  let html=tiles.map(t=>`
     <div class="shelf-tile${editMode?' edit-mode':''}" data-id="${t.id}" ${!editMode?`onclick="switchView('${t.id}',null)"`:''} style="position:relative">
-      ${editMode?`
-        <button class="tile-edit-btn" onclick="openTileEditor('${t.id}')" style="right:28px">✏️</button>
-        <button class="tile-edit-btn" onclick="deleteTile('${t.id}')" style="background:var(--rust);right:4px">✕</button>
-      `:''}
+      ${editMode?`<button class="tile-edit-btn" onclick="openTileEditor('${t.id}')" style="right:28px">✏️</button><button class="tile-edit-btn" onclick="deleteTile('${t.id}')" style="background:var(--rust);right:4px">✕</button>`:''}
       <span class="tile-emoji">${t.emoji}</span>
       <div class="tile-name">${t.name}</div>
       <div class="tile-count">${getCached(t.id).length} ${t.sub}</div>
     </div>`).join('');
-  if(editMode) html+=`<div class="shelf-tile add-tile-btn" onclick="addNewTile()" style="border:2px dashed var(--border);opacity:0.7;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px">
-    <span style="font-size:28px">＋</span>
-    <div class="tile-name">Add Folder</div>
-  </div>`;
-  const shelf = document.getElementById('quickShelf');
-  shelf.innerHTML = html;
-
-  // Destroy old sortable
-  if(window._shelfSortable){ window._shelfSortable.destroy(); window._shelfSortable = null; }
-
-  // Init drag-to-reorder in edit mode
-  if(editMode && typeof Sortable !== 'undefined'){
-    window._shelfSortable = Sortable.create(shelf, {
-      animation: 150,
-      delay: 200,
-      delayOnTouchOnly: true,
-      ghostClass: 'sortable-ghost',
-      chosenClass: 'sortable-chosen',
-      filter: '.add-tile-btn',
-      onEnd: function(){
-        const newOrder = [...shelf.querySelectorAll('[data-id]')].map(el=>el.dataset.id);
-        const tiles = loadTiles();
-        const reordered = newOrder.map(id=>tiles.find(t=>t.id===id)).filter(Boolean);
-        saveTiles(reordered);
-        showToast('Order saved ✓');
+  if(editMode) html+=`<div class="shelf-tile add-tile-btn" onclick="addNewTile()" style="border:2px dashed var(--border);opacity:0.7;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px"><span style="font-size:28px">＋</span><div class="tile-name">Add Folder</div></div>`;
+  const shelf=document.getElementById('quickShelf');
+  shelf.innerHTML=html;
+  if(window._shelfSortable){window._shelfSortable.destroy();window._shelfSortable=null;}
+  if(editMode&&typeof Sortable!=='undefined'){
+    window._shelfSortable=Sortable.create(shelf,{
+      animation:150,delay:200,delayOnTouchOnly:true,
+      ghostClass:'sortable-ghost',chosenClass:'sortable-chosen',filter:'.add-tile-btn',
+      onEnd:function(){
+        const newOrder=[...shelf.querySelectorAll('[data-id]')].map(el=>el.dataset.id);
+        const tiles=loadTiles();
+        const reordered=newOrder.map(id=>tiles.find(t=>t.id===id)).filter(Boolean);
+        saveTiles(reordered); showToast('Order saved ✓');
       }
     });
   }
-
-  tiles.forEach(t=>{
-    const ne = document.getElementById('ne-'+t.id);
-    const nn = document.getElementById('nn-'+t.id);
-    if(ne) ne.textContent = t.emoji;
-    if(nn) nn.textContent = t.name;
-  });
 }
 
-function updateBadges() {
-  SECTIONS.forEach(s=>{ const el=document.getElementById('badge-'+s); if(el) el.textContent=getCached(s).length; });
-  let alertCount = 0;
-  SECTIONS.forEach(s => getCached(s).forEach(i=>{ if(i.alert_time) alertCount++; }));
-  const ab = document.getElementById('badge-alerts');
-  if(ab) ab.textContent = alertCount;
+function updateBadges(){
+  SECTIONS.forEach(s=>{const el=document.getElementById('badge-'+s);if(el) el.textContent=getCached(s).length;});
+  let ac=0; SECTIONS.forEach(s=>getCached(s).forEach(i=>{if(i.alert_time)ac++;}));
+  const ab=document.getElementById('badge-alerts'); if(ab) ab.textContent=ac;
 }
+function toggleEditMode(){ editMode=!editMode; renderShelf(); }
 
-function toggleEditMode(){
-  editMode = !editMode;
-  renderShelf();
-  showToast(editMode ? '✏️ Edit mode on — tap ✕ or ✏️ on tiles' : '✅ Done editing');
-}
-
-function addNewTile() {
-  const tiles = loadTiles();
-  const newId = 'tile_'+Date.now();
+function addNewTile(){
+  const tiles=loadTiles(), newId='tile_'+Date.now();
   tiles.push({id:newId,emoji:'📌',name:'New Folder',sub:'items'});
-  saveTiles(tiles);
-  ensureTileView(newId);
-  renderShelf();
-  openTileEditor(newId);
+  saveTiles(tiles); ensureTileView(newId); renderShelf(); openTileEditor(newId);
 }
-
-function ensureTileView(id) {
+function ensureTileView(id){
   if(document.getElementById('view-'+id)) return;
-  const main = document.querySelector('.main');
-  const div = document.createElement('div');
-  div.className = 'view';
-  div.id = 'view-'+id;
-  div.innerHTML = `<button class="btn-back" onclick="switchView('home',null)">← Home</button>
-    <div class="page-header">
-      <div><div class="page-title" id="ptitle-${id}">📌 New Folder</div><div class="page-subtitle">Your custom folder</div></div>
-      <button class="btn-add" onclick="openModal('${id}')">+ Add Entry</button>
-    </div>
-    <div class="cards-grid" id="cards-${id}"></div>`;
-  main.appendChild(div);
+  const div=document.createElement('div'); div.className='view'; div.id='view-'+id;
+  div.innerHTML=`<button class="btn-back" onclick="switchView('home',null)">← Home</button><div class="page-header"><div><div class="page-title">📌 New Folder</div><div class="page-subtitle">Your custom folder</div></div><button class="btn-add" onclick="openModal('${id}')">+ Add Entry</button></div><div class="cards-grid" id="cards-${id}"></div>`;
+  document.querySelector('.main').appendChild(div);
 }
-
-function deleteTile(id) {
-  const tile = loadTiles().find(t=>t.id===id);
-  if(tile && tile.locked){ showToast('Core folders cannot be deleted'); return; }
-  if(!confirm('Delete this folder and all its entries?')) return;
-  const tiles = loadTiles().filter(t=>t.id!==id);
-  saveTiles(tiles);
-  sb.from('entries').delete().eq('section', id).eq('user_id', currentUser.id);
-  delete dataCache[id];
-  editMode = false;
-  renderShelf();
-  showToast('Folder deleted');
+function deleteTile(id){
+  const tile=loadTiles().find(t=>t.id===id);
+  if(tile&&tile.locked){showToast('Core folders cannot be deleted');return;}
+  if(!confirm('Delete this folder?')) return;
+  saveTiles(loadTiles().filter(t=>t.id!==id));
+  sb.from('entries').delete().eq('section',id).eq('user_id',currentUser.id);
+  delete dataCache[id]; editMode=false; renderShelf(); showToast('Folder deleted');
 }
-
 function openTileEditor(id){
-  editingTileId = id;
-  const tiles = loadTiles();
-  const tile = tiles.find(t=>t.id===id);
-  const pos = tiles.findIndex(t=>t.id===id) + 1;
-  const isLocked = tile.locked === true;
-  document.getElementById('tileEmojiInput').value = tile.emoji;
-  document.getElementById('tileNameInput').value = tile.name;
-  document.getElementById('tileNameInput').disabled = isLocked;
-  document.getElementById('tileNameInput').style.opacity = isLocked ? '0.45' : '1';
-  document.getElementById('tileNameInput').title = isLocked ? 'This folder name is permanent' : '';
-  document.getElementById('tilePosInput').value = pos;
-  // Show lock indicator
-  const lockNote = document.getElementById('tileNameLock');
-  if(lockNote) lockNote.style.display = isLocked ? 'block' : 'none';
+  editingTileId=id;
+  const tiles=loadTiles(), tile=tiles.find(t=>t.id===id), isLocked=tile.locked===true;
+  document.getElementById('tileEmojiInput').value=tile.emoji;
+  document.getElementById('tileNameInput').value=tile.name;
+  document.getElementById('tileNameInput').disabled=isLocked;
+  document.getElementById('tileNameInput').style.opacity=isLocked?'0.45':'1';
+  document.getElementById('tilePosInput').value=tiles.findIndex(t=>t.id===id)+1;
+  const ln=document.getElementById('tileNameLock'); if(ln) ln.style.display=isLocked?'block':'none';
   document.getElementById('tileModal').classList.add('open');
 }
-function closeTileModal(){ document.getElementById('tileModal').classList.remove('open'); editingTileId=null; }
+function closeTileModal(){document.getElementById('tileModal').classList.remove('open');editingTileId=null;}
 function saveTile(){
-  const tiles = loadTiles();
-  const currentIdx = tiles.findIndex(t=>t.id===editingTileId);
-  const tile = tiles[currentIdx];
-  tile.emoji = document.getElementById('tileEmojiInput').value.trim()||tile.emoji;
-  if(!tile.locked){
-    tile.name = document.getElementById('tileNameInput').value.trim()||tile.name;
-  }
-  const posInput = parseInt(document.getElementById('tilePosInput').value);
-  if(!isNaN(posInput) && posInput >= 1) {
-    const newIdx = Math.min(posInput - 1, tiles.length - 1);
-    tiles.splice(currentIdx, 1);
-    tiles.splice(newIdx, 0, tile);
-  }
+  const tiles=loadTiles(), idx=tiles.findIndex(t=>t.id===editingTileId), tile=tiles[idx];
+  tile.emoji=document.getElementById('tileEmojiInput').value.trim()||tile.emoji;
+  if(!tile.locked) tile.name=document.getElementById('tileNameInput').value.trim()||tile.name;
+  const pos=parseInt(document.getElementById('tilePosInput').value);
+  if(!isNaN(pos)&&pos>=1){const ni=Math.min(pos-1,tiles.length-1);tiles.splice(idx,1);tiles.splice(ni,0,tile);}
   saveTiles(tiles); closeTileModal(); renderShelf(); showToast('Folder updated ✓');
 }
 
 // ── ALERTS ──
-function scheduleAlert(item) {
+function scheduleAlert(item){
   if(!item.alertTime) return;
-  const ms = new Date(item.alertTime).getTime()-Date.now();
-  if(ms<=0){ showToast('Alert time is in the past'); return; }
+  const ms=new Date(item.alertTime).getTime()-Date.now();
+  if(ms<=0){showToast('Alert time is in the past');return;}
   if('Notification' in window){
     Notification.requestPermission().then(p=>{
-      if(p==='granted'){
-        setTimeout(()=>new Notification('Dad Brain 🧠',{body:item.title+(item.reminder?' — '+item.reminder:'')}),ms);
-        showToast('Alert set ✓');
-      } else showToast('Allow notifications for alerts');
+      if(p==='granted'){setTimeout(()=>new Notification('Dad Brain 🧠',{body:item.title+(item.reminder?' — '+item.reminder:'')}),ms);showToast('Alert set ✓');}
+      else showToast('Allow notifications for alerts');
     });
   }
 }
 
 // ── SETTINGS ──
 function populateSettings(){
-  const s = loadSettings();
-  document.getElementById('s-userName').value = s.userName||'';
-  document.getElementById('s-tagline').value = s.tagline||'';
-  const accent = s.accentColor||'#D4860A';
-  document.getElementById('s-accentColor').value = accent;
-  document.getElementById('s-accentHex').value = accent;
+  const s=loadSettings();
+  document.getElementById('s-userName').value=s.userName||'';
+  document.getElementById('s-tagline').value=s.tagline||'';
+  const accent=s.accentColor||'#D4860A';
+  document.getElementById('s-accentColor').value=accent;
+  document.getElementById('s-accentHex').value=accent;
   document.querySelectorAll('.theme-swatch').forEach(sw=>sw.classList.toggle('active',sw.dataset.theme===(s.theme||'warm')));
-  const tiles = loadTiles();
-  document.getElementById('folderSettingsList').innerHTML = tiles.map(t=>`
+  document.getElementById('folderSettingsList').innerHTML=loadTiles().map(t=>`
     <div class="folder-setting-row">
       <input class="folder-emoji-in" type="text" maxlength="2" value="${t.emoji}" data-id="${t.id}" data-field="emoji">
-      <input class="folder-name-in" type="text" value="${t.name}" data-id="${t.id}" data-field="name" placeholder="Folder name">
+      <input class="folder-name-in" type="text" value="${t.name}" data-id="${t.id}" data-field="name" placeholder="Folder name" ${t.locked?'disabled style="opacity:0.5"':''}>
     </div>`).join('');
-  document.getElementById('s-accentColor').oninput = e=>document.getElementById('s-accentHex').value=e.target.value;
-  document.getElementById('s-accentHex').oninput = e=>{ if(/^#[0-9a-f]{6}$/i.test(e.target.value)) document.getElementById('s-accentColor').value=e.target.value; };
-  document.querySelectorAll('.theme-swatch').forEach(sw=>{ sw.onclick=()=>{ document.querySelectorAll('.theme-swatch').forEach(s=>s.classList.remove('active')); sw.classList.add('active'); }; });
+  document.getElementById('s-accentColor').oninput=e=>document.getElementById('s-accentHex').value=e.target.value;
+  document.getElementById('s-accentHex').oninput=e=>{if(/^#[0-9a-f]{6}$/i.test(e.target.value))document.getElementById('s-accentColor').value=e.target.value;};
+  document.querySelectorAll('.theme-swatch').forEach(sw=>{sw.onclick=()=>{document.querySelectorAll('.theme-swatch').forEach(s=>s.classList.remove('active'));sw.classList.add('active');};});
 }
-
 function saveSettings(){
-  const s = loadSettings();
-  s.appName = 'Dad Brain'; // Brand locked — cannot be changed by users
-  s.userName = document.getElementById('s-userName').value.trim();
-  s.tagline = document.getElementById('s-tagline').value.trim();
-  s.accentColor = document.getElementById('s-accentColor').value;
-  s.theme = document.querySelector('.theme-swatch.active')?.dataset.theme||'warm';
-  const tiles = loadTiles();
+  const s=loadSettings();
+  s.appName='Dad Brain';
+  s.userName=document.getElementById('s-userName').value.trim();
+  s.tagline=document.getElementById('s-tagline').value.trim();
+  s.accentColor=document.getElementById('s-accentColor').value;
+  s.theme=document.querySelector('.theme-swatch.active')?.dataset.theme||'warm';
+  const tiles=loadTiles();
   document.querySelectorAll('.folder-setting-row').forEach(row=>{
-    const ei = row.querySelector('[data-field="emoji"]');
-    const ni = row.querySelector('[data-field="name"]');
+    const ei=row.querySelector('[data-field="emoji"]'), ni=row.querySelector('[data-field="name"]');
     if(!ei) return;
-    const tile = tiles.find(t=>t.id===ei.dataset.id);
-    if(tile){ tile.emoji=ei.value.trim()||tile.emoji; tile.name=ni.value.trim()||tile.name; }
+    const tile=tiles.find(t=>t.id===ei.dataset.id);
+    if(tile){tile.emoji=ei.value.trim()||tile.emoji; if(!tile.locked) tile.name=ni.value.trim()||tile.name;}
   });
   saveTiles(tiles); persistSettings(s); applySettings(s); renderShelf(); showToast('Settings saved ✓');
 }
-
 function applySettings(s){
   if(s.theme&&THEMES[s.theme]) Object.entries(THEMES[s.theme]).forEach(([k,v])=>document.documentElement.style.setProperty(k,v));
   if(s.accentColor) document.documentElement.style.setProperty('--amber',s.accentColor);
-  const lt = document.getElementById('logoText');
-  if(lt&&s.appName){ const p=s.appName.trim().split(' '); lt.innerHTML=`${p[0]||'Dad'} <span>${p.slice(1).join(' ')||'Brain'}</span>`; }
-  if(s.userName){ const hr=new Date().getHours(); const px=hr<12?'Good morning':hr<17?'Hey':'Evening'; const el=document.getElementById('greeting'); if(el) el.textContent=`${px}, ${s.userName} 👋`; }
-  if(s.tagline){ const el=document.getElementById('homeTagline'); if(el) el.textContent=s.tagline; }
+  if(s.userName){const hr=new Date().getHours(),px=hr<12?'Good morning':hr<17?'Hey':'Evening',el=document.getElementById('greeting');if(el)el.textContent=`${px}, ${s.userName} 👋`;}
+  if(s.tagline){const el=document.getElementById('homeTagline');if(el)el.textContent=s.tagline;}
 }
-
 async function clearAllData(){
-  if(!confirm('Delete ALL your notes? This cannot be undone.')) return;
-  await sb.from('entries').delete().eq('user_id', currentUser.id);
-  dataCache = {};
-  renderShelf(); renderRecent(); updateBadges(); showToast('All data cleared');
+  if(!confirm('Delete ALL notes? Cannot be undone.')) return;
+  await sb.from('entries').delete().eq('user_id',currentUser.id);
+  dataCache={}; renderShelf(); renderRecent(); updateBadges(); showToast('All data cleared');
 }
 
 // ── DAD SCORE ──
-function updateDadScore() {
-  const oneWeekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
-  let weekCount = 0, totalCount = 0;
-  const CORE = ['family','gifts','hobbies','reads','goals','movies','tv','restaurants'];
-  CORE.forEach(s => {
-    (dataCache[s]||[]).forEach(item => {
-      totalCount++;
-      if(new Date(item.created_at).getTime() >= oneWeekAgo) weekCount++;
-    });
-  });
-  const scoreEl = document.getElementById('dadScoreNumber');
-  const labelEl = document.getElementById('dadScoreLabel');
-  const rankEl  = document.getElementById('dadScoreRank');
+function updateDadScore(){
+  const oneWeekAgo=Date.now()-7*24*60*60*1000;
+  let weekCount=0, totalCount=0;
+  SECTIONS.forEach(s=>(dataCache[s]||[]).forEach(item=>{
+    totalCount++;
+    if(new Date(item.created_at).getTime()>=oneWeekAgo) weekCount++;
+  }));
+  const scoreEl=document.getElementById('dadScoreNumber');
+  const labelEl=document.getElementById('dadScoreLabel');
+  const rankEl=document.getElementById('dadScoreRank');
   if(!scoreEl) return;
-  scoreEl.textContent = weekCount;
-  labelEl.textContent = weekCount === 1 ? 'note this week' : 'notes this week';
-  if(weekCount === 0)      rankEl.textContent = 'Start logging to get your score';
-  else if(weekCount < 3)  rankEl.textContent = '🌱 Getting started!';
-  else if(weekCount < 7)  rankEl.textContent = '🔥 Top 25% of dads';
-  else if(weekCount < 14) rankEl.textContent = '⚡ Top 10% — dialed in';
-  else                    rankEl.textContent = '🏆 Elite Dad — unstoppable';
+  scoreEl.textContent=weekCount;
+  labelEl.textContent=weekCount===1?'note this week':'notes this week';
+  if(weekCount===0)      rankEl.textContent='Start logging to get your score';
+  else if(weekCount<3)  rankEl.textContent='🌱 Getting started!';
+  else if(weekCount<7)  rankEl.textContent='🔥 Top 25% of dads';
+  else if(weekCount<14) rankEl.textContent='⚡ Top 10% — dialed in';
+  else                  rankEl.textContent='🏆 Elite Dad — unstoppable';
   checkMilestones(totalCount);
 }
 
 // ── MILESTONES ──
-const MILESTONES = [
-  {count:1,   emoji:'🌱', title:'First note saved!',       body:'Every great dad brain starts with one thought.'},
-  {count:10,  emoji:'🔥', title:'10 notes logged!',        body:'You\'re building a real habit.'},
-  {count:25,  emoji:'⚡', title:'25 notes — on a roll!',   body:'Your brain is getting sharper every day.'},
-  {count:50,  emoji:'🏅', title:'50 notes saved!',         body:'Top tier of intentional dads right here.'},
-  {count:100, emoji:'🏆', title:'100 notes — legendary!',  body:'Dad Brain is officially part of your life.'},
+const MILESTONES=[
+  {count:1,  emoji:'🌱',title:'First note saved!',      body:'Every great dad brain starts with one thought.'},
+  {count:10, emoji:'🔥',title:'10 notes logged!',       body:"You're building a real habit."},
+  {count:25, emoji:'⚡',title:'25 notes — on a roll!',  body:'Your brain is getting sharper every day.'},
+  {count:50, emoji:'🏅',title:'50 notes saved!',        body:'Top tier of intentional dads right here.'},
+  {count:100,emoji:'🏆',title:'100 notes — legendary!', body:'Dad Brain is officially part of your life.'},
 ];
-function checkMilestones(totalCount) {
-  const reached = JSON.parse(localStorage.getItem('dbMilestones')||'[]');
-  const next = MILESTONES.find(m => m.count <= totalCount && !reached.includes(m.count));
+function checkMilestones(totalCount){
+  const reached=JSON.parse(localStorage.getItem('dbMilestones')||'[]');
+  const next=MILESTONES.find(m=>m.count<=totalCount&&!reached.includes(m.count));
   if(!next) return;
-  reached.push(next.count);
-  localStorage.setItem('dbMilestones', JSON.stringify(reached));
-  document.getElementById('milestoneEmoji').textContent = next.emoji;
-  document.getElementById('milestoneTitle').textContent = next.title;
-  document.getElementById('milestoneBody').textContent = next.body;
-  document.getElementById('milestoneBanner').style.display = 'flex';
+  reached.push(next.count); localStorage.setItem('dbMilestones',JSON.stringify(reached));
+  document.getElementById('milestoneEmoji').textContent=next.emoji;
+  document.getElementById('milestoneTitle').textContent=next.title;
+  document.getElementById('milestoneBody').textContent=next.body;
+  document.getElementById('milestoneBanner').style.display='flex';
   fireMilestone();
 }
-function fireMilestone() {
-  const end = Date.now() + 2500;
-  const frame = () => {
-    confetti({ particleCount:6, angle:60,  spread:55, origin:{x:0}, colors:['#D4860A','#F2C14E','#FFFEF9'] });
-    confetti({ particleCount:6, angle:120, spread:55, origin:{x:1}, colors:['#5C3D2E','#C45C26','#6B7F5E'] });
-    if(Date.now() < end) requestAnimationFrame(frame);
+function fireMilestone(){
+  const end=Date.now()+2500;
+  const frame=()=>{
+    confetti({particleCount:6,angle:60, spread:55,origin:{x:0},colors:['#D4860A','#F2C14E','#FFFEF9']});
+    confetti({particleCount:6,angle:120,spread:55,origin:{x:1},colors:['#5C3D2E','#C45C26','#6B7F5E']});
+    if(Date.now()<end) requestAnimationFrame(frame);
   };
   frame();
 }
 
 // ── DAILY PROMPT ──
-const DAD_PROMPTS = [
+const DAD_PROMPTS=[
   "What's one thing your kid did this week that made you smile?",
   "What's a gift idea you've been meaning to write down?",
   "What hobby have you been neglecting that you miss?",
@@ -1204,155 +1060,110 @@ const DAD_PROMPTS = [
   "What's stressing you out that you should write down and release?",
   "What's one thing your kid is really into right now?",
 ];
-function setDailyPrompt() {
-  const el = document.getElementById('dailyPromptText');
-  if(!el) return;
-  const dayIndex = Math.floor(Date.now() / 86400000) % DAD_PROMPTS.length;
-  el.textContent = DAD_PROMPTS[dayIndex];
+function setDailyPrompt(){
+  const el=document.getElementById('dailyPromptText'); if(!el) return;
+  el.textContent=DAD_PROMPTS[Math.floor(Date.now()/86400000)%DAD_PROMPTS.length];
 }
-function logDailyPrompt() {
-  const prompt = document.getElementById('dailyPromptText')?.textContent;
-  if(!prompt) return;
-  modalSection = 'goals';
-  editingItemId = null;
-  document.getElementById('modalTitle').textContent = '💭 Daily Prompt';
-  document.getElementById('modalSaveBtn').textContent = 'Save It';
+function logDailyPrompt(){
+  const prompt=document.getElementById('dailyPromptText')?.textContent; if(!prompt) return;
+  modalSection='goals'; editingItemId=null;
+  document.getElementById('modalTitle').textContent='💭 Daily Prompt';
+  document.getElementById('modalSaveBtn').textContent='Save It';
   ['inputTitle','inputBody','inputLink','inputReminder','inputAlertDate','inputAlertTime'].forEach(id=>document.getElementById(id).value='');
-  document.getElementById('inputTitle').value = prompt;
+  document.getElementById('inputTitle').value=prompt;
   document.getElementById('modal').classList.add('open');
-  setTimeout(()=>document.getElementById('inputBody').focus(), 100);
+  setTimeout(()=>document.getElementById('inputBody').focus(),100);
 }
 
-function dismissReminder(){ document.getElementById('reminderBanner').style.display='none'; }
-  const count = 120;
-  const defaults = { startVelocity: 28, spread: 360, ticks: 60, zIndex: 9999 };
-  function randomInRange(min, max) { return Math.random() * (max - min) + min; }
-  // Two simultaneous bursts from left and right
-  confetti({ ...defaults, particleCount: count * 0.4, origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 }, colors: ['#D4860A','#5C3D2E','#C45C26','#F2C14E','#6B7F5E'] });
-  confetti({ ...defaults, particleCount: count * 0.4, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 }, colors: ['#D4860A','#5C3D2E','#C45C26','#F2C14E','#6B7F5E'] });
-  // Center burst slightly delayed
-  setTimeout(() => {
-    confetti({ ...defaults, particleCount: count * 0.3, origin: { x: 0.5, y: 0.4 }, startVelocity: 35, colors: ['#FFFEF9','#D4860A','#C45C26','#9B72CF'] });
-  }, 150);
+// ── CONFETTI ──
+function fireConfetti(){
+  const count=120, defaults={startVelocity:28,spread:360,ticks:60,zIndex:9999};
+  const r=(a,b)=>Math.random()*(b-a)+a;
+  confetti({...defaults,particleCount:count*0.4,origin:{x:r(0.1,0.3),y:Math.random()-0.2},colors:['#D4860A','#5C3D2E','#C45C26','#F2C14E','#6B7F5E']});
+  confetti({...defaults,particleCount:count*0.4,origin:{x:r(0.7,0.9),y:Math.random()-0.2},colors:['#D4860A','#5C3D2E','#C45C26','#F2C14E','#6B7F5E']});
+  setTimeout(()=>confetti({...defaults,particleCount:count*0.3,origin:{x:0.5,y:0.4},startVelocity:35,colors:['#FFFEF9','#D4860A','#C45C26','#9B72CF']}),150);
 }
-function showToast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2400); }
+
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2400);}
+function dismissReminder(){document.getElementById('reminderBanner').style.display='none';}
 
 function setGreeting(){
-  const s = loadSettings();
-  const name = s.userName||'Dad';
-  const hr = new Date().getHours();
-  const px = hr<12?'Good morning':hr<17?'Hey':'Evening';
-  document.getElementById('greeting').textContent = `${px}, ${name} 👋`;
-  document.getElementById('headerDate').textContent = new Date().toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'});
-  if(s.tagline) document.getElementById('homeTagline').textContent = s.tagline;
+  const s=loadSettings(), name=s.userName||'Dad', hr=new Date().getHours();
+  const px=hr<12?'Good morning':hr<17?'Hey':'Evening';
+  const el=document.getElementById('greeting'); if(el) el.textContent=`${px}, ${name} 👋`;
+  const de=document.getElementById('headerDate'); if(de) de.textContent=new Date().toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'});
+  if(s.tagline){const tl=document.getElementById('homeTagline');if(tl)tl.textContent=s.tagline;}
 }
-
 function updateAlertDropBadge(){
-  let count = 0;
-  SECTIONS.forEach(s => getCached(s).forEach(i=>{ if(i.alert_time) count++; }));
-  const el = document.getElementById('drop-badge-alerts');
-  if(el) el.textContent = count;
-  const dot = document.getElementById('menuAlertDot');
-  if(dot) dot.style.display = count>0?'block':'none';
+  let count=0; SECTIONS.forEach(s=>getCached(s).forEach(i=>{if(i.alert_time)count++;}));
+  const el=document.getElementById('drop-badge-alerts'); if(el) el.textContent=count;
+  const dot=document.getElementById('menuAlertDot'); if(dot) dot.style.display=count>0?'block':'none';
 }
 
 // ── DROPDOWN ──
-function toggleMenu(){ document.getElementById('dropdown').classList.toggle('open'); }
-function closeMenu(){ document.getElementById('dropdown').classList.remove('open'); }
-document.addEventListener('click',e=>{ const wrap=document.getElementById('menuWrap'); if(wrap&&!wrap.contains(e.target)) closeMenu(); });
+function toggleMenu(){document.getElementById('dropdown').classList.toggle('open');}
+function closeMenu(){document.getElementById('dropdown').classList.remove('open');}
+document.addEventListener('click',e=>{const w=document.getElementById('menuWrap');if(w&&!w.contains(e.target))closeMenu();});
 
 // ── AUTH ──
 async function doLogin(){
-  const email = document.getElementById('loginEmail').value.trim();
-  const pass = document.getElementById('loginPassword').value;
-  const err = document.getElementById('loginErr');
-  const btn = document.getElementById('loginBtn');
-  if(!email||!pass){ err.textContent='Please enter your email and password.'; err.style.display='block'; return; }
-  btn.innerHTML = '<span class="spinner"></span>Signing in…';
-  btn.disabled = true;
-  const { data, error } = await sb.auth.signInWithPassword({ email, password: pass });
-  btn.innerHTML = 'Sign In';
-  btn.disabled = false;
-  if(error){ err.textContent = error.message; err.style.display='block'; return; }
-  err.style.display = 'none';
+  const email=document.getElementById('loginEmail').value.trim();
+  const pass=document.getElementById('loginPassword').value;
+  const err=document.getElementById('loginErr'), btn=document.getElementById('loginBtn');
+  if(!email||!pass){err.textContent='Please enter your email and password.';err.style.display='block';return;}
+  btn.innerHTML='<span class="spinner"></span>Signing in…'; btn.disabled=true;
+  const {data,error}=await sb.auth.signInWithPassword({email,password:pass});
+  btn.innerHTML='Sign In'; btn.disabled=false;
+  if(error){err.textContent=error.message;err.style.display='block';return;}
+  err.style.display='none';
   await onLogin(data.user);
 }
-
 async function doRegister(){
-  const email = document.getElementById('regEmail').value.trim();
-  const pass = document.getElementById('regPassword').value;
-  const err = document.getElementById('regErr');
-  const btn = document.getElementById('regBtn');
-  if(!email||!pass){ err.textContent='Please fill in all fields.'; err.style.display='block'; return; }
-  if(pass.length < 6){ err.textContent='Password must be at least 6 characters.'; err.style.display='block'; return; }
-  btn.innerHTML = '<span class="spinner"></span>Creating…';
-  btn.disabled = true;
-  const { data, error } = await sb.auth.signUp({ email, password: pass });
-  btn.innerHTML = 'Create Account';
-  btn.disabled = false;
-  if(error){ err.textContent = error.message; err.style.display='block'; return; }
-  err.style.display = 'none';
-  // Supabase may require email confirmation — handle both cases
-  if(data.user && data.session){
-    await onLogin(data.user);
-  } else {
-    showRegister();
-    document.getElementById('regErr').textContent = '✅ Check your email to confirm your account, then sign in.';
-    document.getElementById('regErr').style.display = 'block';
-    document.getElementById('regErr').style.color = 'var(--sage)';
+  const email=document.getElementById('regEmail').value.trim();
+  const pass=document.getElementById('regPassword').value;
+  const err=document.getElementById('regErr'), btn=document.getElementById('regBtn');
+  if(!email||!pass){err.textContent='Please fill in all fields.';err.style.display='block';return;}
+  if(pass.length<6){err.textContent='Password must be at least 6 characters.';err.style.display='block';return;}
+  btn.innerHTML='<span class="spinner"></span>Creating…'; btn.disabled=true;
+  const {data,error}=await sb.auth.signUp({email,password:pass});
+  btn.innerHTML='Create Account'; btn.disabled=false;
+  if(error){err.textContent=error.message;err.style.display='block';return;}
+  if(data.user&&data.session){ await onLogin(data.user); }
+  else {
+    document.getElementById('regErr').textContent='✅ Check your email to confirm, then sign in.';
+    document.getElementById('regErr').style.display='block';
+    document.getElementById('regErr').style.color='var(--sage)';
   }
 }
-
 async function onLogin(user){
-  currentUser = user;
-  document.getElementById('loginScreen').style.display = 'none';
-  document.getElementById('registerScreen').style.display = 'none';
+  currentUser=user;
+  document.getElementById('loginScreen').style.display='none';
+  document.getElementById('registerScreen').style.display='none';
   showToast('Welcome back 👋');
   await fetchAllSections();
-  setGreeting();
-  setDailyPrompt();
-  updateDadScore();
-  updateBadges();
-  updateAlertDropBadge();
-  renderShelf();
-  renderRecent();
+  setGreeting(); setDailyPrompt(); updateDadScore();
+  updateBadges(); updateAlertDropBadge();
+  renderShelf(); renderRecent();
   applySettings(loadSettings());
 }
-
 async function logOut(){
   if(!confirm('Sign out of Dad Brain?')) return;
-  await sb.auth.signOut();
-  currentUser = null;
-  dataCache = {};
-  document.getElementById('loginScreen').style.display = 'flex';
+  await sb.auth.signOut(); currentUser=null; dataCache={};
+  document.getElementById('loginScreen').style.display='flex';
 }
+function showRegister(){document.getElementById('loginScreen').style.display='none';document.getElementById('registerScreen').style.display='flex';}
+function showLogin(){document.getElementById('registerScreen').style.display='none';document.getElementById('loginScreen').style.display='flex';}
 
-function showRegister(){
-  document.getElementById('loginScreen').style.display = 'none';
-  document.getElementById('registerScreen').style.display = 'flex';
-}
-function showLogin(){
-  document.getElementById('registerScreen').style.display = 'none';
-  document.getElementById('loginScreen').style.display = 'flex';
-}
-
-document.getElementById('modal').addEventListener('click',e=>{ if(e.target===document.getElementById('modal')) closeModal(); });
-document.getElementById('tileModal').addEventListener('click',e=>{ if(e.target===document.getElementById('tileModal')) closeTileModal(); });
+document.getElementById('modal').addEventListener('click',e=>{if(e.target===document.getElementById('modal'))closeModal();});
+document.getElementById('tileModal').addEventListener('click',e=>{if(e.target===document.getElementById('tileModal'))closeTileModal();});
 
 // ── INIT ──
-(async () => {
-  setGreeting();
-  applySettings(loadSettings());
-  // Check if already logged in
-  const { data: { session } } = await sb.auth.getSession();
-  if(session?.user){
-    await onLogin(session.user);
-  }
-  // Listen for auth state changes
-  sb.auth.onAuthStateChange(async (event, session) => {
-    if(event === 'SIGNED_IN' && session?.user && !currentUser){
-      await onLogin(session.user);
-    }
+(async()=>{
+  setGreeting(); applySettings(loadSettings());
+  const {data:{session}}=await sb.auth.getSession();
+  if(session?.user) await onLogin(session.user);
+  sb.auth.onAuthStateChange(async(event,session)=>{
+    if(event==='SIGNED_IN'&&session?.user&&!currentUser) await onLogin(session.user);
   });
 })();
 </script>
