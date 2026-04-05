@@ -1425,11 +1425,18 @@ const pass=document.getElementById(‘loginPassword’).value;
 const err=document.getElementById(‘loginErr’), btn=document.getElementById(‘loginBtn’);
 if(!email||!pass){err.textContent=‘Please enter your email and password.’;err.style.display=‘block’;return;}
 btn.innerHTML=’<span class="spinner"></span>Signing in…’; btn.disabled=true;
+try {
 const {data,error}=await sb.auth.signInWithPassword({email,password:pass});
 btn.innerHTML=‘Sign In’; btn.disabled=false;
 if(error){err.textContent=error.message;err.style.display=‘block’;return;}
 err.style.display=‘none’;
 await onLogin(data.user);
+} catch(e){
+btn.innerHTML=‘Sign In’; btn.disabled=false;
+err.textContent=‘Connection error — please try again.’;
+err.style.display=‘block’;
+console.error(‘doLogin error:’,e);
+}
 }
 async function doRegister(){
 const email=document.getElementById(‘regEmail’).value.trim();
@@ -1449,16 +1456,26 @@ document.getElementById(‘regErr’).style.color=‘var(–sage)’;
 }
 }
 async function onLogin(user){
+try {
 currentUser=user;
 document.getElementById(‘loginScreen’).style.display=‘none’;
 document.getElementById(‘registerScreen’).style.display=‘none’;
 document.getElementById(‘quickCaptureBtn’).style.display=‘flex’;
 showToast(‘Welcome back 👋’);
 await fetchAllSections();
-setGreeting(); setDailyPrompt(); updateDadScore(); checkSmartReminders();
-updateBadges(); updateAlertDropBadge();
-renderShelf(); renderRecent();
+setGreeting();
+try { setDailyPrompt(); } catch(e){ console.warn(‘dailyPrompt’,e); }
+try { updateDadScore(); } catch(e){ console.warn(‘dadScore’,e); }
+try { checkSmartReminders(); } catch(e){ console.warn(‘smartReminders’,e); }
+updateBadges();
+updateAlertDropBadge();
+renderShelf();
+renderRecent();
 applySettings(loadSettings());
+} catch(e){
+console.error(‘onLogin error:’, e);
+showToast(‘Login error — please refresh’);
+}
 }
 async function logOut(){
 if(!confirm(‘Sign out of Dad Brain?’)) return;
@@ -1468,10 +1485,10 @@ document.getElementById(‘loginScreen’).style.display=‘flex’;
 function showRegister(){document.getElementById(‘loginScreen’).style.display=‘none’;document.getElementById(‘registerScreen’).style.display=‘flex’;}
 function showLogin(){document.getElementById(‘registerScreen’).style.display=‘none’;document.getElementById(‘loginScreen’).style.display=‘flex’;}
 
-document.getElementById(‘modal’).addEventListener(‘click’,e=>{if(e.target===document.getElementById(‘modal’))closeModal();});
-document.getElementById(‘tileModal’).addEventListener(‘click’,e=>{if(e.target===document.getElementById(‘tileModal’))closeTileModal();});
-document.getElementById(‘quickModal’).addEventListener(‘click’,e=>{if(e.target===document.getElementById(‘quickModal’))closeQuickCapture();});
-document.getElementById(‘shareModal’).addEventListener(‘click’,e=>{if(e.target===document.getElementById(‘shareModal’))closeShareModal();});
+[‘modal’,‘tileModal’,‘quickModal’,‘shareModal’].forEach(id=>{
+const el=document.getElementById(id);
+if(el) el.addEventListener(‘click’,e=>{ if(e.target===el){ if(id===‘modal’) closeModal(); else if(id===‘tileModal’) closeTileModal(); else if(id===‘quickModal’) closeQuickCapture(); else if(id===‘shareModal’) closeShareModal(); }});
+});
 
 // ── INIT ──
 (async()=>{
