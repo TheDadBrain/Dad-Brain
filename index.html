@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Dad Brain</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="https://unpkg.com/@supabase/supabase-js@2" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.3/dist/umd/supabase.js" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js" crossorigin="anonymous"></script>
 <style>
@@ -713,9 +713,22 @@ header { padding:0 16px; height:56px; }
 
 <script>
 const { createClient } = supabase;
+
+// Safari iOS "Load failed" fix — retry fetch up to 3 times
+const fetchWithRetry = async (url, options={}, retries=3) => {
+  for(let i=0; i<retries; i++){
+    try { return await fetch(url, options); }
+    catch(e){
+      if(i===retries-1) throw e;
+      await new Promise(r=>setTimeout(r, 300*(i+1)));
+    }
+  }
+};
+
 const sb = createClient(
   'https://afzqplqnhmmqmmpcwuzu.supabase.co',
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFmenFwbHFuaG1tcW1tcGN3dXp1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUzMTY0MDEsImV4cCI6MjA5MDg5MjQwMX0.6pbDySL17i5_gI7V_HvPo_8zlc4WajvQpZ3Kcvl0F5k'
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFmenFwbHFuaG1tcW1tcGN3dXp1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUzMTY0MDEsImV4cCI6MjA5MDg5MjQwMX0.6pbDySL17i5_gI7V_HvPo_8zlc4WajvQpZ3Kcvl0F5k',
+  { global: { fetch: fetchWithRetry } }
 );
 
 const SECTIONS = ['family','gifts','hobbies','reads','goals','movies','tv','restaurants'];
