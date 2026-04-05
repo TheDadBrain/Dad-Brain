@@ -6,9 +6,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Dad Brain</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+<script src="https://unpkg.com/@supabase/supabase-js@2" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js" crossorigin="anonymous"></script>
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 :root {
@@ -1139,6 +1139,7 @@ function checkMilestones(totalCount){
   fireMilestone();
 }
 function fireMilestone(){
+  if(typeof confetti==='undefined') return;
   const end=Date.now()+2500;
   const frame=()=>{
     confetti({particleCount:6,angle:60, spread:55,origin:{x:0},colors:['#D4860A','#F2C14E','#FFFEF9']});
@@ -1390,6 +1391,7 @@ navigator.clipboard.writeText(text+’\n— Dad Brain’).then(()=>showToast(‘
 }
 
 function fireConfetti(){
+if(typeof confetti===‘undefined’) return;
 const count=120, defaults={startVelocity:28,spread:360,ticks:60,zIndex:9999};
 const r=(a,b)=>Math.random()*(b-a)+a;
 confetti({…defaults,particleCount:count*0.4,origin:{x:r(0.1,0.3),y:Math.random()-0.2},colors:[’#D4860A’,’#5C3D2E’,’#C45C26’,’#F2C14E’,’#6B7F5E’]});
