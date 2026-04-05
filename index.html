@@ -338,6 +338,36 @@ header { padding:0 16px; height:56px; }
 <div class="view active" id="view-home">
   <div class="home-greeting" id="greeting">Hey, Dad 👋</div>
   <div class="home-sub" id="homeTagline">Here's what's waiting for you.</div>
+
+  <!-- DAD SCORE + DAILY PROMPT ROW -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:24px;">
+    <!-- DAD SCORE -->
+    <div id="dadScoreCard" style="background:#FFFEF9;border:1px solid rgba(92,61,46,0.12);border-radius:16px;padding:16px;box-shadow:0 2px 12px rgba(28,26,22,0.07);position:relative;overflow:hidden;">
+      <div style="font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#7A6F65;margin-bottom:6px;">Dad Score</div>
+      <div id="dadScoreNumber" style="font-family:'Playfair Display',serif;font-size:36px;font-weight:700;color:#5C3D2E;line-height:1;">0</div>
+      <div id="dadScoreLabel" style="font-size:11px;color:#7A6F65;margin-top:4px;">notes this week</div>
+      <div id="dadScoreRank" style="font-size:11px;font-weight:600;color:#6B7F5E;margin-top:6px;"></div>
+      <div style="position:absolute;bottom:-8px;right:-4px;font-size:48px;opacity:0.08;">🏆</div>
+    </div>
+    <!-- DAILY PROMPT -->
+    <div id="dailyPromptCard" style="background:linear-gradient(135deg,#5C3D2E,#3d2519);border-radius:16px;padding:16px;box-shadow:0 2px 12px rgba(28,26,22,0.15);position:relative;overflow:hidden;cursor:pointer;" onclick="logDailyPrompt()">
+      <div style="font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,0.6);margin-bottom:8px;">Daily Prompt</div>
+      <div id="dailyPromptText" style="font-size:13px;font-weight:500;color:#FFFEF9;line-height:1.5;"></div>
+      <div style="font-size:11px;color:rgba(255,255,255,0.5);margin-top:10px;">Tap to answer →</div>
+      <div style="position:absolute;bottom:-8px;right:-4px;font-size:48px;opacity:0.1;">💭</div>
+    </div>
+  </div>
+
+  <!-- MILESTONE BANNER -->
+  <div id="milestoneBanner" style="display:none;background:linear-gradient(135deg,#D4860A,#C45C26);border-radius:16px;padding:16px 20px;margin-bottom:24px;display:none;align-items:center;gap:14px;color:#FFFEF9;">
+    <div style="font-size:32px;" id="milestoneEmoji">🏅</div>
+    <div>
+      <div style="font-family:'Playfair Display',serif;font-size:16px;font-weight:700;" id="milestoneTitle">Milestone!</div>
+      <div style="font-size:12px;opacity:0.85;margin-top:2px;" id="milestoneBody">You're on a roll.</div>
+    </div>
+    <button onclick="document.getElementById('milestoneBanner').style.display='none'" style="margin-left:auto;background:rgba(255,255,255,0.2);border:none;color:#FFFEF9;border-radius:8px;padding:6px 12px;font-size:12px;cursor:pointer;font-family:'DM Sans',sans-serif;">✕</button>
+  </div>
+
   <div id="reminderBanner" class="reminder-strip" style="display:none">
     <div class="reminder-icon">🔔</div>
     <div class="reminder-text"><h3 id="reminderTitle"></h3><p id="reminderBody"></p></div>
@@ -672,7 +702,7 @@ function switchView(view, btn) {
   document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active'));
   if(btn) btn.classList.add('active');
   else document.querySelectorAll('.nav-item').forEach(b=>{if(b.getAttribute('onclick')?.includes("'"+view+"'"))b.classList.add('active')});
-  if(view==='home'){ renderShelf(); renderRecent(); }
+  if(view==='home'){ renderShelf(); renderRecent(); setDailyPrompt(); updateDadScore(); }
   else if(view==='settings') populateSettings();
   else if(view==='alerts') renderAlerts();
   else renderSection(view, true);
@@ -754,6 +784,7 @@ async function saveItem() {
   showToast(editingItemId ? 'Entry updated ✓' : 'Saved ✓');
   if(!editingItemId) fireConfetti();
   updateAlertDropBadge();
+  updateDadScore();
 }
 
 // ── DELETE ──
@@ -1100,7 +1131,99 @@ async function clearAllData(){
   renderShelf(); renderRecent(); updateBadges(); showToast('All data cleared');
 }
 
-function fireConfetti() {
+// ── DAD SCORE ──
+function updateDadScore() {
+  const oneWeekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
+  let weekCount = 0, totalCount = 0;
+  const CORE = ['family','gifts','hobbies','reads','goals','movies','tv','restaurants'];
+  CORE.forEach(s => {
+    (dataCache[s]||[]).forEach(item => {
+      totalCount++;
+      if(new Date(item.created_at).getTime() >= oneWeekAgo) weekCount++;
+    });
+  });
+  const scoreEl = document.getElementById('dadScoreNumber');
+  const labelEl = document.getElementById('dadScoreLabel');
+  const rankEl  = document.getElementById('dadScoreRank');
+  if(!scoreEl) return;
+  scoreEl.textContent = weekCount;
+  labelEl.textContent = weekCount === 1 ? 'note this week' : 'notes this week';
+  if(weekCount === 0)      rankEl.textContent = 'Start logging to get your score';
+  else if(weekCount < 3)  rankEl.textContent = '🌱 Getting started!';
+  else if(weekCount < 7)  rankEl.textContent = '🔥 Top 25% of dads';
+  else if(weekCount < 14) rankEl.textContent = '⚡ Top 10% — dialed in';
+  else                    rankEl.textContent = '🏆 Elite Dad — unstoppable';
+  checkMilestones(totalCount);
+}
+
+// ── MILESTONES ──
+const MILESTONES = [
+  {count:1,   emoji:'🌱', title:'First note saved!',       body:'Every great dad brain starts with one thought.'},
+  {count:10,  emoji:'🔥', title:'10 notes logged!',        body:'You\'re building a real habit.'},
+  {count:25,  emoji:'⚡', title:'25 notes — on a roll!',   body:'Your brain is getting sharper every day.'},
+  {count:50,  emoji:'🏅', title:'50 notes saved!',         body:'Top tier of intentional dads right here.'},
+  {count:100, emoji:'🏆', title:'100 notes — legendary!',  body:'Dad Brain is officially part of your life.'},
+];
+function checkMilestones(totalCount) {
+  const reached = JSON.parse(localStorage.getItem('dbMilestones')||'[]');
+  const next = MILESTONES.find(m => m.count <= totalCount && !reached.includes(m.count));
+  if(!next) return;
+  reached.push(next.count);
+  localStorage.setItem('dbMilestones', JSON.stringify(reached));
+  document.getElementById('milestoneEmoji').textContent = next.emoji;
+  document.getElementById('milestoneTitle').textContent = next.title;
+  document.getElementById('milestoneBody').textContent = next.body;
+  document.getElementById('milestoneBanner').style.display = 'flex';
+  fireMilestone();
+}
+function fireMilestone() {
+  const end = Date.now() + 2500;
+  const frame = () => {
+    confetti({ particleCount:6, angle:60,  spread:55, origin:{x:0}, colors:['#D4860A','#F2C14E','#FFFEF9'] });
+    confetti({ particleCount:6, angle:120, spread:55, origin:{x:1}, colors:['#5C3D2E','#C45C26','#6B7F5E'] });
+    if(Date.now() < end) requestAnimationFrame(frame);
+  };
+  frame();
+}
+
+// ── DAILY PROMPT ──
+const DAD_PROMPTS = [
+  "What's one thing your kid did this week that made you smile?",
+  "What's a gift idea you've been meaning to write down?",
+  "What hobby have you been neglecting that you miss?",
+  "What's one goal you want to hit before end of month?",
+  "What restaurant do you want to take the family to next?",
+  "What's something your partner did recently worth appreciating?",
+  "What movie have you been meaning to watch for ages?",
+  "What's one thing you want to remember about this season of life?",
+  "What's a book or article you've been meaning to read?",
+  "What's your biggest win this week as a dad?",
+  "What do you want to teach your kid this year?",
+  "What's one small thing you can do tomorrow to be more present?",
+  "What's a memory from this week worth keeping forever?",
+  "What's stressing you out that you should write down and release?",
+  "What's one thing your kid is really into right now?",
+];
+function setDailyPrompt() {
+  const el = document.getElementById('dailyPromptText');
+  if(!el) return;
+  const dayIndex = Math.floor(Date.now() / 86400000) % DAD_PROMPTS.length;
+  el.textContent = DAD_PROMPTS[dayIndex];
+}
+function logDailyPrompt() {
+  const prompt = document.getElementById('dailyPromptText')?.textContent;
+  if(!prompt) return;
+  modalSection = 'goals';
+  editingItemId = null;
+  document.getElementById('modalTitle').textContent = '💭 Daily Prompt';
+  document.getElementById('modalSaveBtn').textContent = 'Save It';
+  ['inputTitle','inputBody','inputLink','inputReminder','inputAlertDate','inputAlertTime'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('inputTitle').value = prompt;
+  document.getElementById('modal').classList.add('open');
+  setTimeout(()=>document.getElementById('inputBody').focus(), 100);
+}
+
+function dismissReminder(){ document.getElementById('reminderBanner').style.display='none'; }
   const count = 120;
   const defaults = { startVelocity: 28, spread: 360, ticks: 60, zIndex: 9999 };
   function randomInRange(min, max) { return Math.random() * (max - min) + min; }
@@ -1187,6 +1310,8 @@ async function onLogin(user){
   showToast('Welcome back 👋');
   await fetchAllSections();
   setGreeting();
+  setDailyPrompt();
+  updateDadScore();
   updateBadges();
   updateAlertDropBadge();
   renderShelf();
