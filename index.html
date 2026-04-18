@@ -429,6 +429,12 @@ header {
 <div class="toast" id="toast"></div>
 <button class="fab" id="quickFab" onclick="openQuickCapture()" style="display:none;" title="Quick capture">+</button>
 <script>
+  function closeAllModals() {
+  const modals = document.querySelectorAll('.modal-overlay');
+  modals.forEach(function(modal) {
+    modal.classList.remove('open');
+  });
+}
 var sb = supabase.createClient('https://afzqplqnhmmqmmpcwuzu.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFmenFwbHFuaG1tcW1tcGN3dXp1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUzMTY0MDEsImV4cCI6MjA5MDg5MjQwMX0.6pbDySL17i5_gI7V_HvPo_8zlc4WajvQpZ3Kcvl0F5k');
 var SECTIONS=['family','gifts','hobbies','reads','goals','movies','tv','restaurants','quick'];
 var ACCENTS={family:'#D4860A',gifts:'#C45C26',hobbies:'#6B7F5E',reads:'#7A8FA6',goals:'#9B72CF',movies:'#8B3A8B',tv:'#2A7A9B',restaurants:'#B55A1A',quick:'#D4860A'};
