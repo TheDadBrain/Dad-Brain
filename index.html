@@ -60,7 +60,9 @@ header {
 @media (max-width:600px) { .cards-grid { grid-template-columns:1fr; } }
 .card { background:#FDF5E6; border:1px solid rgba(0,0,0,0.15); border-radius:14px; padding:18px; transition:all 0.2s; position:relative; overflow:hidden; }
 .card::before { content:''; position:absolute; top:0; left:0; right:0; height:4px; background:var(--card-accent,var(--amber)); border-radius:14px 14px 0 0; }
-.card:hover { transform:translateY(-3px); box-shadow:var(--shadow-hover); border-color:rgba(0,0,0,0.25); }
+.card {
+  transition: all 0.25s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
 .card-tag { font-size:10px; font-weight:700; letter-spacing:0.8px; text-transform:uppercase; color:#5C3D1A; margin-bottom:8px; }
 .card-title { font-family:'Playfair Display',serif; font-size:16px; font-weight:700; color:#2A1810; margin-bottom:6px; line-height:1.3; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; word-break:break-word; }
 .card-body { font-size:13px; color:#3D2817; line-height:1.6; font-weight:400; display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; }
