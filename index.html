@@ -340,7 +340,7 @@ header {
     <div class="menu-wrap" id="menuWrap">
       <button class="menu-btn" onclick="toggleMenu()"><span id="menuAlertDot" class="menu-dot" style="display:none"></span>&#9776;</button>
       <div class="dropdown" id="dropdown">
-        <button class="drop-badge" onclick="moveItemToCompleted('${item.id}')" style="border:none; cursor:pointer;">Done</button>
+        <button class="drop-item" onclick="closeMenu();switchView('alerts',null)">Alerts <span class="drop-badge" id="drop-badge-alerts">0</span></button>
         <div class="drop-divider"></div>
         <button class="drop-item" onclick="closeMenu();switchView('profile',null)">Profile</button>
         <button class="drop-item" onclick="closeMenu();switchView('settings',null)">Settings</button>
