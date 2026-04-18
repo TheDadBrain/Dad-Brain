@@ -529,7 +529,7 @@ function openQuickCapture(){var tiles=loadTiles();var hasQuick=tiles.find(functi
 
 document.addEventListener('click',function(e){var sw=document.querySelector('.search-wrap');if(sw&&!sw.contains(e.target)){document.getElementById('searchResults').classList.remove('open');}});
 ['modal','tileModal','shareModal'].forEach(function(id){var el=document.getElementById(id);if(el)el.addEventListener('click',function(e){if(e.target===el){if(id==='modal')closeModal();else if(id==='tileModal')closeTileModal();else if(id==='shareModal')closeShareModal();}});});
-(function(){try{setGreeting();applySettings(loadSettings());}catch(e){console.warn(e);});});}sb.auth.getSession().then(function(sessionResult){
+(function(){try{setGreeting();applySettings(loadSettings());}catch(e){console.warn(e);}sb.auth.getSession().then(function(sessionResult){
   // Hide the loading screen first
   document.getElementById('loadingScreen').style.display = 'none';
   
