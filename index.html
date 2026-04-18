@@ -529,23 +529,43 @@ function openQuickCapture(){var tiles=loadTiles();var hasQuick=tiles.find(functi
 
 document.addEventListener('click',function(e){var sw=document.querySelector('.search-wrap');if(sw&&!sw.contains(e.target)){document.getElementById('searchResults').classList.remove('open');}});
 ['modal','tileModal','shareModal'].forEach(function(id){var el=document.getElementById(id);if(el)el.addEventListener('click',function(e){if(e.target===el){if(id==='modal')closeModal();else if(id==='tileModal')closeTileModal();else if(id==='shareModal')closeShareModal();}});});
-(function(){try{setGreeting();applySettings(loadSettings());}catch(e){console.warn(e);}sb.auth.getSession().then(function(sessionResult){
-  // Hide the loading screen first
-  document.getElementById('loadingScreen').style.display = 'none';
-  
-  if(sessionResult.data.session && sessionResult.data.session.user) {
-    onLogin(sessionResult.data.session.user);
+(function(){
+  try {
+    setGreeting();
+    applySettings(loadSettings());
+  } catch(e) {
+    console.warn(e);
   }
-  
-  sb.auth.onAuthStateChange(function(event, session){
-    if(event === 'SIGNED_IN' && session && session.user && !currentUser) {
-      onLogin(session.user);
+
+  // Force the loading screen to hide after 3 seconds as a safety backup
+  var safetyTimer = setTimeout(function() {
+    var loader = document.getElementById('loadingScreen');
+    if (loader) loader.style.display = 'none';
+  }, 3000);
+
+  sb.auth.getSession().then(function(sessionResult){
+    // Clear the safety timer since we got a response
+    clearTimeout(safetyTimer);
+    
+    var loader = document.getElementById('loadingScreen');
+    if (loader) loader.style.display = 'none';
+    
+    if(sessionResult.data.session && sessionResult.data.session.user) {
+      onLogin(sessionResult.data.session.user);
     }
+    
+    sb.auth.onAuthStateChange(function(event, session){
+      if(event === 'SIGNED_IN' && session && session.user && typeof currentUser !== 'undefined' && !currentUser) {
+        onLogin(session.user);
+      }
+    });
+  }).catch(function(error) {
+    clearTimeout(safetyTimer);
+    var loader = document.getElementById('loadingScreen');
+    if (loader) loader.style.display = 'none';
+    console.warn("Auth error:", error);
   });
-}).catch(function(error) {
-  document.getElementById('loadingScreen').style.display = 'none';
-  console.warn("Auth error:", error);
-});
+})();
 </script>
 </body>
 </html>
